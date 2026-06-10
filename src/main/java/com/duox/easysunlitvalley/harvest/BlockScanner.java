@@ -62,6 +62,10 @@ public final class BlockScanner {
         }
         if (NS_VINERY.equals(ns) && ESVConfig.INSTANCE.harvestVinery.get())
             return evaluateAgeCrop(state, pos, CropType.FRUIT);
+        if ("minecraft".equals(ns)) {
+            if (path.contains("sapling") || path.contains("stem") || "fire".equals(path) || path.contains("pitcher")) return Optional.empty();
+            return evaluateAgeCrop(state, pos, CropType.CROP);
+        }
 
         return Optional.empty();
     }

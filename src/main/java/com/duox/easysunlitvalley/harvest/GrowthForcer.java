@@ -1,68 +1,64 @@
 package com.duox.easysunlitvalley.harvest;
 
 import com.duox.easysunlitvalley.config.ESVConfig;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 
-/** Forces nearby crops to max age (server-side, single-player). */
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+/**
+ * Ticks on the client side to scan for nearby immature crops,
+ * and simulates right-clicking them to force growth.
+ */
 public final class GrowthForcer {
 
-    private static final String NS_FARMERS_DELIGHT = "farmersdelight";
-    private static final String NS_FARM_AND_CHARM  = "farm_and_charm";
-    private static final String NS_PAM_TREES       = "pamhc2trees";
-    private static final String NS_VINERY          = "vinery";
-
     private int cooldown = 0;
+    private int scanCooldown = 0;
+    private List<BlockPos> immatureCrops = new ArrayList<>();
 
-    public void tick(ServerPlayer player) {
-        if (player == null || !(player.level() instanceof ServerLevel level)) return;
+    public void tick() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null || mc.gameMode == null) return;
+        if (mc.screen != null) return;
+
+        if (scanCooldown <= 0) {
+            BlockPos playerPos = mc.player.blockPosition();
+            immatureCrops = new ArrayList<>(BlockScanner.scan().stream()
+                    .filter(t -> !t.isMature())
+                    .map(HarvestTarget::pos)
+                    .sorted(Comparator.comparingDouble(pos -> pos.distSqr(playerPos)))
+                    .toList());
+            scanCooldown = ESVConfig.INSTANCE.harvestScanIntervalTicks.get();
+        } else { scanCooldown--; }
+
         if (cooldown > 0) { cooldown--; return; }
-        cooldown = ESVConfig.INSTANCE.harvestScanIntervalTicks.get();
+        if (immatureCrops.isEmpty()) return;
 
-        int r = ESVConfig.INSTANCE.harvestScanRadius.get();
-        BlockPos center = player.blockPosition();
-        for (BlockPos pos : BlockPos.betweenClosed(center.offset(-r, -r, -r), center.offset(r, r, r))) {
-            BlockState state = level.getBlockState(pos);
-            if (state.isAir()) continue;
-            if (isSupportedBlock(state)) forceGrow(level, pos, state);
+        int batchSize = ESVConfig.INSTANCE.harvestBatchSize.get();
+        int processed = 0;
+        while (processed < batchSize && !immatureCrops.isEmpty()) {
+            BlockPos pos = immatureCrops.remove(0);
+            if (mc.level.getBlockState(pos).isAir()) continue;
+            rightClickBlock(mc, pos);
+            processed++;
+        }
+        if (processed > 0) {
+            cooldown = ESVConfig.INSTANCE.harvestCooldownTicks.get();
+            scanCooldown = 0;
         }
     }
 
-    private boolean isSupportedBlock(BlockState state) {
-        ResourceLocation id = ForgeRegistries.BLOCKS.getKey(state.getBlock());
-        if (id == null) return false;
-        String ns = id.getNamespace(); String path = id.getPath();
-        if (NS_FARMERS_DELIGHT.equals(ns) && ESVConfig.INSTANCE.harvestFarmersDelight.get()) return true;
-        if (NS_FARM_AND_CHARM.equals(ns) && ESVConfig.INSTANCE.harvestFarmAndCharm.get()) return true;
-        if (NS_PAM_TREES.equals(ns) && ESVConfig.INSTANCE.harvestPamTrees.get()) {
-            return !path.endsWith("_sapling") && !path.contains("log");
-        }
-        if (NS_VINERY.equals(ns) && ESVConfig.INSTANCE.harvestVinery.get()) return true;
-        return false;
+    private void rightClickBlock(Minecraft mc, BlockPos pos) {
+        mc.player.swing(InteractionHand.MAIN_HAND);
+        mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND,
+                new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false));
     }
 
-    private void forceGrow(ServerLevel level, BlockPos pos, BlockState state) {
-        IntegerProperty ageProp = BlockScanner.findAgeProperty(state);
-        if (ageProp != null) {
-            int current = state.getValue(ageProp);
-            int max = ageProp.getPossibleValues().stream().mapToInt(Integer::intValue).max().orElse(0);
-            if (current < max) level.setBlock(pos, state.setValue(ageProp, max), 3);
-            return;
-        }
-        for (Property<?> prop : state.getProperties()) {
-            if (prop instanceof IntegerProperty intProp) {
-                int current = state.getValue(intProp);
-                int max = intProp.getPossibleValues().stream().mapToInt(Integer::intValue).max().orElse(0);
-                if (max > 0 && current < max) { level.setBlock(pos, state.setValue(intProp, max), 3); return; }
-            }
-        }
-    }
-
-    public void reset() { cooldown = 0; }
+    public void reset() { cooldown = 0; scanCooldown = 0; immatureCrops = new ArrayList<>(); }
 }

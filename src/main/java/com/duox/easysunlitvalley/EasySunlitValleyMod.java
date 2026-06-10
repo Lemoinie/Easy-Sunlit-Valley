@@ -28,7 +28,13 @@ public class EasySunlitValleyMod {
 
         // ── Config ─────────────────────────────────────────────────────
         ModLoadingContext.get().registerConfig(
-                ModConfig.Type.CLIENT, ESVConfig.SPEC, "easysunlitvalley-client.toml");
+                ModConfig.Type.COMMON, ESVConfig.SPEC, "easysunlitvalley-common.toml");
+
+        // Make mod optional for connecting clients and servers
+        ModLoadingContext.get().registerExtensionPoint(
+                net.minecraftforge.fml.IExtensionPoint.DisplayTest.class,
+                () -> net.minecraftforge.fml.IExtensionPoint.DisplayTest.IGNORE_SERVER_VERSION.get()
+        );
 
         // ── Register server-safe event handlers ────────────────────────
         MinecraftForge.EVENT_BUS.register(new ForceGrowOnClickHandler());

@@ -12,7 +12,6 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.event.TickEvent;
@@ -126,19 +125,6 @@ public final class ESVKeyBindHandler {
         if (ModuleManager.tapperEnabled) tapper.tick();
         if (ModuleManager.preservesEnabled) preserves.tick();
         if (ModuleManager.wineEnabled) wine.tick();
-    }
-
-    @SubscribeEvent
-    public void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
-        if (!ModuleManager.forceGrowEnabled) return;
-
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.getSingleplayerServer() == null) return;
-        var playerList = mc.getSingleplayerServer().getPlayerList();
-        if (playerList == null) return;
-        for (ServerPlayer sp : playerList.getPlayers()) {
-            growthForcer.tick(sp);
-        }
+        if (ModuleManager.forceGrowEnabled) growthForcer.tick();
     }
 }
