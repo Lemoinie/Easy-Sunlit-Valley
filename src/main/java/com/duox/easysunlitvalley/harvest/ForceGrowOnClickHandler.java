@@ -48,6 +48,12 @@ public final class ForceGrowOnClickHandler {
             return !path.endsWith("_sapling") && !path.contains("log");
         }
         if (NS_VINERY.equals(ns) && ESVConfig.INSTANCE.harvestVinery.get()) return true;
+        if ("minecraft".equals(ns)) {
+            return !path.contains("sapling") && !path.contains("stem") && !"fire".equals(path) && !path.contains("pitcher");
+        }
+        if ("etcetera".equals(ns) && ESVConfig.INSTANCE.harvestEtcetera.get()) return true;
+        if ("vintagedelight".equals(ns) && ESVConfig.INSTANCE.harvestVintageDelight.get()) return true;
+        if ("veggiesdelight".equals(ns) && ESVConfig.INSTANCE.harvestVeggiesDelight.get()) return true;
         return false;
     }
 }

@@ -66,6 +66,15 @@ public final class BlockScanner {
             if (path.contains("sapling") || path.contains("stem") || "fire".equals(path) || path.contains("pitcher")) return Optional.empty();
             return evaluateAgeCrop(state, pos, CropType.CROP);
         }
+        if ("etcetera".equals(ns) && ESVConfig.INSTANCE.harvestEtcetera.get()) {
+            return evaluateAgeCrop(state, pos, CropType.CROP);
+        }
+        if ("vintagedelight".equals(ns) && ESVConfig.INSTANCE.harvestVintageDelight.get()) {
+            return evaluateAgeCrop(state, pos, CropType.CROP);
+        }
+        if ("veggiesdelight".equals(ns) && ESVConfig.INSTANCE.harvestVeggiesDelight.get()) {
+            return evaluateAgeCrop(state, pos, CropType.CROP);
+        }
 
         return Optional.empty();
     }
