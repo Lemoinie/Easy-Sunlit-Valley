@@ -8,7 +8,7 @@
   ],
   "client": [
     "FishingMinigameMixin",
-    "FishingAutoMixin"
+    "EasyFishingMixin"
   ],
   "injectors": {
     "defaultRequire": 1

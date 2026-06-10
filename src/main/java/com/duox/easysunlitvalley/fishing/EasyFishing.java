@@ -20,14 +20,12 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 /**
- * Auto Fish Hack — automatically casts and retrieves the fishing rod.
- * Migrated from EasyFishing into the unified EasySunlitValley mod.
- *
- * <p>Handles the cast/reel loop. The fishing minigame bar control is
- * handled by the mixins (FishingAutoMixin, FishingMinigameMixin).
+ * Easy Fishing — automatically casts and retrieves the fishing rod.
+ * Handles the cast/reel loop. The fishing minigame bar control is
+ * handled by the mixins (EasyFishingMixin, FishingMinigameMixin).
  */
 @OnlyIn(Dist.CLIENT)
-public class AutoFishHack {
+public class EasyFishing {
 
     /** Session counter for successfully caught fish. */
     public static int caughtCount = 0;
@@ -57,26 +55,26 @@ public class AutoFishHack {
             int durability = getDurability(stack);
             int threshold = ESVConfig.INSTANCE.durabilityThreshold.get();
             if (durability <= threshold) {
-                if (ESVConfig.INSTANCE.autoSwitchRod.get()) {
+                if (ESVConfig.INSTANCE.easySwitchRod.get()) {
                     int altSlot = findAlternativeRod(mc.player, mc.player.getInventory().selected, threshold);
                     if (altSlot != -1) {
                         mc.player.getInventory().selected = altSlot;
                         mc.player.displayClientMessage(
-                            Component.literal("§aAuto Fish: Switched to healthy rod in slot " + (altSlot + 1)), true);
+                            Component.literal("§aEasy Fishing: Switched to healthy rod in slot " + (altSlot + 1)), true);
                         rodHand = getRodHand(mc.player);
                         if (rodHand == null) return;
                     } else {
                         ModuleManager.fishingEnabled = false;
                         reset();
                         mc.player.displayClientMessage(
-                            Component.literal("§cAuto Fish Stopped: No healthy rods left!"), false);
+                            Component.literal("§cEasy Fishing Stopped: No healthy rods left!"), false);
                         return;
                     }
                 } else {
                     ModuleManager.fishingEnabled = false;
                     reset();
                     mc.player.displayClientMessage(
-                        Component.literal("§cAuto Fish Stopped: Rod durability is low (" + durability + ")!"), false);
+                        Component.literal("§cEasy Fishing Stopped: Rod durability is low (" + durability + ")!"), false);
                     return;
                 }
             }
@@ -103,7 +101,7 @@ public class AutoFishHack {
             biteDetected = false;
         }
 
-        if (ESVConfig.INSTANCE.biteMode.get() == ESVConfig.BiteMode.NIBBLE) {
+        if (ESVConfig.INSTANCE.easyMinigame.get()) {
             checkNibble(hook, mc);
         }
 

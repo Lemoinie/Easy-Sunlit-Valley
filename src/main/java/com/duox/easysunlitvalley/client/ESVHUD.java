@@ -2,11 +2,12 @@ package com.duox.easysunlitvalley.client;
 
 import com.duox.easysunlitvalley.ModuleManager;
 import com.duox.easysunlitvalley.config.ESVConfig;
-import com.duox.easysunlitvalley.fishing.AutoFishHack;
-import com.duox.easysunlitvalley.harvest.AutoHarvester;
-import com.duox.easysunlitvalley.tapper.AutoTapper;
-import com.duox.easysunlitvalley.preserve.AutoPreserves;
-import com.duox.easysunlitvalley.wine.AutoWine;
+import com.duox.easysunlitvalley.fishing.EasyFishing;
+import com.duox.easysunlitvalley.harvest.EasyHarvester;
+import com.duox.easysunlitvalley.husbandry.EasyHusbandry;
+import com.duox.easysunlitvalley.tapper.EasyTapper;
+import com.duox.easysunlitvalley.preserve.EasyPreserves;
+import com.duox.easysunlitvalley.wine.EasyWine;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
@@ -32,19 +33,21 @@ public class ESVHUD {
     private static boolean statsRequested = false;
     private static int initialTotalFish = -1;
 
-    private final AutoFishHack fishHack;
-    private final AutoHarvester harvester;
-    private final AutoTapper tapper;
-    private final AutoPreserves preserves;
-    private final AutoWine wine;
+    private final EasyFishing fishHack;
+    private final EasyHarvester harvester;
+    private final EasyTapper tapper;
+    private final EasyPreserves preserves;
+    private final EasyWine wine;
+    private final EasyHusbandry husbandry;
 
-    public ESVHUD(AutoFishHack fishHack, AutoHarvester harvester, AutoTapper tapper,
-                  AutoPreserves preserves, AutoWine wine) {
+    public ESVHUD(EasyFishing fishHack, EasyHarvester harvester, EasyTapper tapper,
+                  EasyPreserves preserves, EasyWine wine, EasyHusbandry husbandry) {
         this.fishHack = fishHack;
         this.harvester = harvester;
         this.tapper = tapper;
         this.preserves = preserves;
         this.wine = wine;
+        this.husbandry = husbandry;
     }
 
     @SubscribeEvent
@@ -58,14 +61,15 @@ public class ESVHUD {
         if (event.getOverlay() != VanillaGuiOverlay.HOTBAR.type()) return;
         if (!ESVConfig.INSTANCE.hudEnabled.get()) return;
 
-        boolean fishActive = ModuleManager.fishingEnabled || ESVConfig.INSTANCE.autoMinigame.get();
+        boolean fishActive = ModuleManager.fishingEnabled || ESVConfig.INSTANCE.easyMinigame.get();
         boolean harvestActive = ModuleManager.harvestEnabled;
         boolean tapperActive = ModuleManager.tapperEnabled;
         boolean preservesActive = ModuleManager.preservesEnabled;
         boolean wineActive = ModuleManager.wineEnabled;
+        boolean husbandryActive = ModuleManager.husbandryEnabled;
         boolean forceGrow = ModuleManager.forceGrowEnabled;
 
-        if (!fishActive && !harvestActive && !tapperActive && !forceGrow && !preservesActive && !wineActive) return;
+        if (!fishActive && !harvestActive && !tapperActive && !forceGrow && !preservesActive && !wineActive && !husbandryActive) return;
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null || mc.screen != null) return;
@@ -81,6 +85,7 @@ public class ESVHUD {
         int lines = 1; // Title
         if (fishActive) lines += 4; // Status, Rod, Session, Total
         if (harvestActive || forceGrow) lines += 2; // Harvest status + mature count
+        if (husbandryActive) lines += 2; // Husbandry status + nearby count
         if (tapperActive || preservesActive || wineActive) {
             lines += 1; // Section header (Artisan)
             if (tapperActive) lines += 1;
@@ -127,7 +132,7 @@ public class ESVHUD {
             g.drawString(mc.font, "Rod: " + dur, tx, ty, 0xFFCCCCCC, true);
             ty += lineH;
 
-            g.drawString(mc.font, "Session: §a" + AutoFishHack.caughtCount, tx, ty, 0xFFCCCCCC, true);
+            g.drawString(mc.font, "Session: §a" + EasyFishing.caughtCount, tx, ty, 0xFFCCCCCC, true);
             ty += lineH;
 
             int totalFish = getTotalFish(mc);
@@ -143,6 +148,15 @@ public class ESVHUD {
             ty += lineH;
 
             g.drawString(mc.font, "Mature nearby: §e" + harvester.getMatureCount(), tx, ty, 0xFFCCCCCC, true);
+            ty += lineH;
+        }
+
+        // ── HUSBANDRY SECTION ──────────────────────────────────────────
+        if (husbandryActive) {
+            g.drawString(mc.font, "§eHusbandry: §aActive", tx, ty, 0xFFCCCCCC, true);
+            ty += lineH;
+
+            g.drawString(mc.font, "Animals nearby: §e" + husbandry.getAnimalCount(), tx, ty, 0xFFCCCCCC, true);
             ty += lineH;
         }
 
@@ -201,6 +215,6 @@ public class ESVHUD {
             if (playTime > 0 && initialTotalFish == -1)
                 initialTotalFish = ps.getValue(Stats.CUSTOM.get(Stats.FISH_CAUGHT));
         }
-        return (initialTotalFish != -1) ? (initialTotalFish + AutoFishHack.caughtCount) : 0;
+        return (initialTotalFish != -1) ? (initialTotalFish + EasyFishing.caughtCount) : 0;
     }
 }

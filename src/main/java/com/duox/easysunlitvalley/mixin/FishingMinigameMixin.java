@@ -26,7 +26,7 @@ public class FishingMinigameMixin {
 
     @Inject(method = "tick(Z)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I"))
     private void onTickLogic(boolean mouseDown, CallbackInfo ci) {
-        if (ESVConfig.INSTANCE.autoMinigame.get()) {
+        if (ESVConfig.INSTANCE.easyMinigame.get()) {
             double targetBobberPos = this.fishPos - (this.barSize / 2.0) + 7.0;
 
             boolean catchTreasureEnabled = ESVConfig.INSTANCE.catchTreasure.get();

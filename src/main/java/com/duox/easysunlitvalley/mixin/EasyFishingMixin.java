@@ -3,7 +3,7 @@ package com.duox.easysunlitvalley.mixin;
 import com.bonker.stardewfishing.client.FishingMinigame;
 import com.bonker.stardewfishing.client.FishingScreen;
 import com.duox.easysunlitvalley.config.ESVConfig;
-import com.duox.easysunlitvalley.fishing.AutoFishHack;
+import com.duox.easysunlitvalley.fishing.EasyFishing;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = FishingScreen.class)
-public abstract class FishingAutoMixin {
+public abstract class EasyFishingMixin {
 
     @Shadow private FishingMinigame minigame;
     @Shadow public abstract void setInputDown(boolean down);
@@ -21,7 +21,7 @@ public abstract class FishingAutoMixin {
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void tick(CallbackInfo ci) {
-        if (!ESVConfig.INSTANCE.autoMinigame.get() || minigame == null) return;
+        if (!ESVConfig.INSTANCE.easyMinigame.get() || minigame == null) return;
 
         float fishPos = minigame.getFishPos();
         float bobberPos = minigame.getBobberPos();
@@ -51,6 +51,6 @@ public abstract class FishingAutoMixin {
 
     @Inject(method = "setResult(ZDZZ)V", at = @At("HEAD"), remap = false)
     private void onSetResult(boolean success, double accuracy, boolean gotChest, boolean goldenChest, CallbackInfo ci) {
-        if (success) AutoFishHack.caughtCount++;
+        if (success) EasyFishing.caughtCount++;
     }
 }

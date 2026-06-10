@@ -5,10 +5,10 @@ issueTrackerURL=""
 
 [[mods]]
 modId="easysunlitvalley"
-version="1.0.0"
-displayName="Easy Sunlit Valley"
-authors="Duox"
-description="All-in-one automation for Society: Sunlit Valley — Auto Fishing, Crop Harvesting, and Tapper Collection."
+version="${mod_version}"
+displayName="${mod_name}"
+authors="${mod_authors}"
+description="${mod_description}"
 
 [[dependencies.easysunlitvalley]]
 modId="forge"

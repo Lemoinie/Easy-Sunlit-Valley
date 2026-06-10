@@ -6,20 +6,23 @@ package com.duox.easysunlitvalley;
  */
 public final class ModuleManager {
 
-    /** Auto-fishing cast/reel loop. */
+    /** Easy-fishing cast/reel loop. */
     public static boolean fishingEnabled = false;
 
-    /** Auto-harvest nearby mature crops/fruits. */
+    /** Easy-harvest nearby mature crops/fruits. */
     public static boolean harvestEnabled = false;
 
-    /** Auto-collect full tappers. */
+    /** Easy-collect full tappers. */
     public static boolean tapperEnabled = false;
 
-    /** Auto-preserve items in preserves jars. */
+    /** Easy-preserve items in preserves jars. */
     public static boolean preservesEnabled = false;
 
-    /** Auto-wine items in wine kegs. */
+    /** Easy-wine items in wine kegs. */
     public static boolean wineEnabled = false;
+
+    /** Easy-husbandry right-clicks nearby farm animals. */
+    public static boolean husbandryEnabled = false;
 
     /** Force-grow nearby crops (area effect, server-side). */
     public static boolean forceGrowEnabled = false;

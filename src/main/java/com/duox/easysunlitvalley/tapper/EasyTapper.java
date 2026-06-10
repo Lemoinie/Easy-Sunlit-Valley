@@ -13,7 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /** Right-clicks full tappers (society:tapper). Never left-clicks. */
-public final class AutoTapper {
+public final class EasyTapper {
 
     private int cooldown = 0;
     private int scanCooldown = 0;

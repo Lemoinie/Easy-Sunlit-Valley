@@ -13,7 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /** Right-click harvester for mature crops/fruits. Never left-clicks. */
-public final class AutoHarvester {
+public final class EasyHarvester {
 
     private int cooldown = 0;
     private int scanCooldown = 0;

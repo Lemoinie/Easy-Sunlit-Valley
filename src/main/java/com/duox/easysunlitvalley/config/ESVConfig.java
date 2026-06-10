@@ -35,8 +35,8 @@ public final class ESVConfig {
     public final ForgeConfigSpec.IntValue durabilityThreshold;
     public final ForgeConfigSpec.BooleanValue antiDetection;
     public final ForgeConfigSpec.IntValue randomDelayRange;
-    public final ForgeConfigSpec.BooleanValue autoSwitchRod;
-    public final ForgeConfigSpec.BooleanValue autoMinigame;
+    public final ForgeConfigSpec.BooleanValue easySwitchRod;
+    public final ForgeConfigSpec.BooleanValue easyMinigame;
     public final ForgeConfigSpec.BooleanValue catchTreasure;
     public final ForgeConfigSpec.IntValue quickEnableFishing;
 
@@ -87,6 +87,15 @@ public final class ESVConfig {
     public final ForgeConfigSpec.IntValue wineScanIntervalTicks;
     public final ForgeConfigSpec.IntValue quickEnableWine;
 
+    // ══════════════════════════════════════════════════════════════════
+    //  HUSBANDRY
+    // ══════════════════════════════════════════════════════════════════
+    public final ForgeConfigSpec.DoubleValue husbandryScanRadius;
+    public final ForgeConfigSpec.IntValue husbandryCooldownTicks;
+    public final ForgeConfigSpec.IntValue husbandryScanIntervalTicks;
+    public final ForgeConfigSpec.IntValue husbandryBatchSize;
+    public final ForgeConfigSpec.IntValue quickEnableHusbandry;
+
     static {
         var builder = new ForgeConfigSpec.Builder();
         INSTANCE = new ESVConfig(builder);
@@ -102,7 +111,7 @@ public final class ESVConfig {
         builder.pop();
 
         // ── FISHING ────────────────────────────────────────────────────
-        builder.comment("Auto Fishing settings.").push("fishing");
+        builder.comment("Easy Fishing settings.").push("fishing");
 
         biteMode = builder
                 .comment("Bite detection mode.",
@@ -131,11 +140,11 @@ public final class ESVConfig {
         randomDelayRange = builder.comment("Max ticks of random variation. Range: 0-40.")
                 .defineInRange("randomDelayRange", 5, 0, 40);
 
-        autoSwitchRod = builder.comment("Auto switch to another rod when current one is low.")
-                .define("autoSwitchRod", true);
+        easySwitchRod = builder.comment("Easy switch to another rod when current one is low.")
+                .define("easySwitchRod", true);
 
-        autoMinigame = builder.comment("Automatically catch fish during the minigame.")
-                .define("autoMinigame", true);
+        easyMinigame = builder.comment("Automatically catch fish during the minigame.")
+                .define("easyMinigame", true);
 
         catchTreasure = builder.comment("Prioritize catching treasure chests during minigame when safe.")
                 .define("catchTreasure", true);
@@ -146,7 +155,7 @@ public final class ESVConfig {
         builder.pop();
 
         // ── HARVESTING ─────────────────────────────────────────────────
-        builder.comment("Auto Harvesting settings.").push("harvesting");
+        builder.comment("Easy Harvesting settings.").push("harvesting");
 
         harvestScanRadius = builder.comment("Block scan radius.").defineInRange("scanRadius", 5, 1, 10);
         harvestCooldownTicks = builder.comment("Ticks between harvest cycles.").defineInRange("cooldownTicks", 1, 1, 40);
@@ -201,6 +210,19 @@ public final class ESVConfig {
         wineScanIntervalTicks = builder.comment("Ticks between wine rescans.").defineInRange("scanIntervalTicks", 10, 1, 40);
 
         quickEnableWine = builder.comment("GLFW key code for quick-toggle wine (0 = disabled).")
+                .defineInRange("quickEnableKey", 0, 0, 512);
+
+        builder.pop();
+
+        // ── HUSBANDRY ──────────────────────────────────────────────────
+        builder.comment("Easy Husbandry settings.").push("husbandry");
+
+        husbandryScanRadius = builder.comment("Scan radius for farm animals.").defineInRange("scanRadius", 5.0, 1.0, 15.0);
+        husbandryCooldownTicks = builder.comment("Ticks between right-clicking animals.").defineInRange("cooldownTicks", 1, 1, 40);
+        husbandryScanIntervalTicks = builder.comment("Ticks between animal rescans.").defineInRange("scanIntervalTicks", 5, 1, 40);
+        husbandryBatchSize = builder.comment("Animals to interact with per cycle.").defineInRange("batchSize", 4, 1, 20);
+
+        quickEnableHusbandry = builder.comment("GLFW key code for quick-toggle husbandry (0 = disabled).")
                 .defineInRange("quickEnableKey", 0, 0, 512);
 
         builder.pop();

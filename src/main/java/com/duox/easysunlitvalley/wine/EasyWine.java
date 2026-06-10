@@ -1,4 +1,4 @@
-package com.duox.easysunlitvalley.preserve;
+package com.duox.easysunlitvalley.wine;
 
 import com.duox.easysunlitvalley.config.ESVConfig;
 import net.minecraft.client.Minecraft;
@@ -14,17 +14,17 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Auto Preserves module logic. 
- * Automatically harvests done preserves, or inputs held edible items into empty preserves.
+ * Easy Wine module logic. 
+ * Automatically harvests done wine, or inputs held edible items into empty wine kegs.
  */
-public final class AutoPreserves {
+public final class EasyWine {
 
     private int cooldown = 0;
     private int scanCooldown = 0;
-    private List<PreservesTarget> targets = new ArrayList<>();
+    private List<WineTarget> targets = new ArrayList<>();
 
     public int getDoneCount() {
-        return (int) targets.stream().filter(PreservesTarget::isDone).count();
+        return (int) targets.stream().filter(WineTarget::isDone).count();
     }
 
     public void tick() {
@@ -34,10 +34,10 @@ public final class AutoPreserves {
 
         if (scanCooldown <= 0) {
             BlockPos playerPos = mc.player.blockPosition();
-            targets = new ArrayList<>(PreservesScanner.scan().stream()
+            targets = new ArrayList<>(WineScanner.scan().stream()
                     .sorted(Comparator.comparingDouble(t -> t.pos().distSqr(playerPos)))
                     .toList());
-            scanCooldown = ESVConfig.INSTANCE.preservesScanIntervalTicks.get();
+            scanCooldown = ESVConfig.INSTANCE.wineScanIntervalTicks.get();
         } else {
             scanCooldown--;
         }
@@ -49,9 +49,9 @@ public final class AutoPreserves {
 
         if (targets.isEmpty()) return;
 
-        // 1. Harvest ready preserves jars
+        // 1. Harvest ready wine kegs
         for (int i = 0; i < targets.size(); i++) {
-            PreservesTarget target = targets.get(i);
+            WineTarget target = targets.get(i);
             if (target.isDone()) {
                 if (mc.level.getBlockState(target.pos()).isAir()) continue;
 
@@ -59,17 +59,17 @@ public final class AutoPreserves {
                 mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND,
                         new BlockHitResult(Vec3.atCenterOf(target.pos()), Direction.UP, target.pos(), false));
 
-                cooldown = ESVConfig.INSTANCE.preservesCooldownTicks.get();
+                cooldown = ESVConfig.INSTANCE.wineCooldownTicks.get();
                 scanCooldown = 0;
                 return;
             }
         }
 
-        // 2. Put edible items held by player into empty preserves jars
+        // 2. Put edible items held by player into empty wine kegs
         ItemStack held = mc.player.getItemInHand(InteractionHand.MAIN_HAND);
         if (!held.isEmpty() && held.getItem().isEdible()) {
             for (int i = 0; i < targets.size(); i++) {
-                PreservesTarget target = targets.get(i);
+                WineTarget target = targets.get(i);
                 if (target.isEmpty()) {
                     if (mc.level.getBlockState(target.pos()).isAir()) continue;
 
@@ -77,7 +77,7 @@ public final class AutoPreserves {
                     mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND,
                             new BlockHitResult(Vec3.atCenterOf(target.pos()), Direction.UP, target.pos(), false));
 
-                    cooldown = ESVConfig.INSTANCE.preservesCooldownTicks.get();
+                    cooldown = ESVConfig.INSTANCE.wineCooldownTicks.get();
                     scanCooldown = 0;
                     return;
                 }

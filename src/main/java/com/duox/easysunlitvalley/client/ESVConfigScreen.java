@@ -2,11 +2,12 @@ package com.duox.easysunlitvalley.client;
 
 import com.duox.easysunlitvalley.ModuleManager;
 import com.duox.easysunlitvalley.config.ESVConfig;
-import com.duox.easysunlitvalley.fishing.AutoFishHack;
-import com.duox.easysunlitvalley.harvest.AutoHarvester;
-import com.duox.easysunlitvalley.tapper.AutoTapper;
-import com.duox.easysunlitvalley.preserve.AutoPreserves;
-import com.duox.easysunlitvalley.wine.AutoWine;
+import com.duox.easysunlitvalley.fishing.EasyFishing;
+import com.duox.easysunlitvalley.harvest.EasyHarvester;
+import com.duox.easysunlitvalley.husbandry.EasyHusbandry;
+import com.duox.easysunlitvalley.tapper.EasyTapper;
+import com.duox.easysunlitvalley.preserve.EasyPreserves;
+import com.duox.easysunlitvalley.wine.EasyWine;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -16,31 +17,33 @@ import org.lwjgl.glfw.GLFW;
 
 /**
  * Clean, compact 2-column configuration screen for Easy Sunlit Valley.
- * Tabs: [Fishing] [Harvest] [Artisan] [HUD]
+ * Tabs: [Fishing] [Harvest] [Husbandry] [Artisan] [HUD]
  */
 public class ESVConfigScreen extends Screen {
 
     private static final Component TITLE = Component.literal("Easy Sunlit Valley");
 
-    private enum Tab { FISHING, HARVEST, ARTISAN, HUD }
+    private enum Tab { FISHING, HARVEST, HUSBANDRY, ARTISAN, HUD }
     private Tab currentTab = Tab.FISHING;
 
-    private final AutoFishHack fishHack;
-    private final AutoHarvester harvester;
-    private final AutoTapper tapper;
-    private final AutoPreserves preserves;
-    private final AutoWine wine;
+    private final EasyFishing fishHack;
+    private final EasyHarvester harvester;
+    private final EasyTapper tapper;
+    private final EasyPreserves preserves;
+    private final EasyWine wine;
+    private final EasyHusbandry husbandry;
 
     private String listeningFor = null;
 
-    public ESVConfigScreen(AutoFishHack fishHack, AutoHarvester harvester, 
-                            AutoTapper tapper, AutoPreserves preserves, AutoWine wine) {
+    public ESVConfigScreen(EasyFishing fishHack, EasyHarvester harvester, 
+                            EasyTapper tapper, EasyPreserves preserves, EasyWine wine, EasyHusbandry husbandry) {
         super(TITLE);
         this.fishHack = fishHack;
         this.harvester = harvester;
         this.tapper = tapper;
         this.preserves = preserves;
         this.wine = wine;
+        this.husbandry = husbandry;
     }
 
     @Override
@@ -52,15 +55,24 @@ public class ESVConfigScreen extends Screen {
     @Override
     protected void rebuildWidgets() {
         this.clearWidgets();
-        int cardW = 280;
+        int cardW = 320;
         int left = (this.width - cardW) / 2;
-        int top = (this.height - 380) / 2;
+        int top = (this.height - 240) / 2; // Shorter card height since layout is compact
 
         // ── Tab buttons ────────────────────────────────────────────────
-        int tabW = cardW / 4;
+        int tabW = cardW / Tab.values().length;
         for (int i = 0; i < Tab.values().length; i++) {
             Tab tab = Tab.values()[i];
-            String label = tab == currentTab ? "§a" + tab.name() : "§7" + tab.name();
+            String display;
+            switch (tab) {
+                case FISHING -> display = "Fish";
+                case HARVEST -> display = "Harvest";
+                case HUSBANDRY -> display = "Animals";
+                case ARTISAN -> display = "Artisan";
+                case HUD -> display = "HUD";
+                default -> display = tab.name();
+            }
+            String label = tab == currentTab ? "§a" + display : "§7" + display;
             this.addRenderableWidget(Button.builder(Component.literal(label), btn -> {
                 currentTab = tab;
                 rebuildWidgets();
@@ -72,6 +84,7 @@ public class ESVConfigScreen extends Screen {
         switch (currentTab) {
             case FISHING -> buildFishingTab(left, y, cardW);
             case HARVEST -> buildHarvestTab(left, y, cardW);
+            case HUSBANDRY -> buildHusbandryTab(left, y, cardW);
             case ARTISAN -> buildArtisanTab(left, y, cardW);
             case HUD -> buildHudTab(left, y, cardW);
         }
@@ -80,9 +93,9 @@ public class ESVConfigScreen extends Screen {
     // ── FISHING TAB ────────────────────────────────────────────────────
 
     private void buildFishingTab(int left, int y, int w) {
-        int colW = 135;
+        int colW = (w - 10) / 2;
         int leftCol = left;
-        int rightCol = left + 145;
+        int rightCol = left + w - colW;
         int ly = y;
         int ry = y;
 
@@ -108,10 +121,10 @@ public class ESVConfigScreen extends Screen {
         ).bounds(leftCol, ly, colW, 20).build());
         ly += 25;
 
-        this.addRenderableWidget(boolBtn("Minigame", ESVConfig.INSTANCE.autoMinigame, leftCol, ly, colW)); ly += 25;
+        this.addRenderableWidget(boolBtn("Minigame", ESVConfig.INSTANCE.easyMinigame, leftCol, ly, colW)); ly += 25;
         this.addRenderableWidget(boolBtn("Treasure", ESVConfig.INSTANCE.catchTreasure, leftCol, ly, colW)); ly += 25;
         this.addRenderableWidget(boolBtn("Dura Prot", ESVConfig.INSTANCE.durabilityProtection, leftCol, ly, colW)); ly += 25;
-        this.addRenderableWidget(boolBtn("Switch Rod", ESVConfig.INSTANCE.autoSwitchRod, leftCol, ly, colW)); ly += 25;
+        this.addRenderableWidget(boolBtn("Switch Rod", ESVConfig.INSTANCE.easySwitchRod, leftCol, ly, colW)); ly += 25;
         this.addRenderableWidget(boolBtn("Anti Detect", ESVConfig.INSTANCE.antiDetection, leftCol, ly, colW));
 
         // ── Right Column: Adjusters & Keybind ──
@@ -126,9 +139,9 @@ public class ESVConfigScreen extends Screen {
     // ── HARVEST TAB ────────────────────────────────────────────────────
 
     private void buildHarvestTab(int left, int y, int w) {
-        int colW = 135;
+        int colW = (w - 10) / 2;
         int leftCol = left;
-        int rightCol = left + 145;
+        int rightCol = left + w - colW;
         int ly = y;
         int ry = y;
 
@@ -171,13 +184,42 @@ public class ESVConfigScreen extends Screen {
         this.addRenderableWidget(boolBtn("Veggies Del.", ESVConfig.INSTANCE.harvestVeggiesDelight, rightCol, ry, colW));
     }
 
+    // ── HUSBANDRY TAB ──────────────────────────────────────────────────
+
+    private void buildHusbandryTab(int left, int y, int w) {
+        int colW = (w - 10) / 2;
+        int leftCol = left;
+        int rightCol = left + w - colW;
+        int ly = y;
+        int ry = y;
+
+        // ── Left Column: Toggles & Keybind ──
+        this.addRenderableWidget(Button.builder(
+            Component.literal("Husbandry: " + (ModuleManager.husbandryEnabled ? "§aON" : "§cOFF")),
+            btn -> {
+                ModuleManager.husbandryEnabled = !ModuleManager.husbandryEnabled;
+                if (!ModuleManager.husbandryEnabled) husbandry.reset();
+                btn.setMessage(Component.literal("Husbandry: " + (ModuleManager.husbandryEnabled ? "§aON" : "§cOFF")));
+            }
+        ).bounds(leftCol, ly, colW, 20).build());
+        ly += 25;
+
+        addKeybindRow(leftCol, ly, colW, "Keybind", "husbandry", ESVConfig.INSTANCE.quickEnableHusbandry);
+
+        // ── Right Column: Numeric settings ──
+        ry = addDoubleAdjuster(rightCol, ry, colW, "Scan Radius", ESVConfig.INSTANCE.husbandryScanRadius, 1.0, 15.0);
+        ry = addIntAdjuster(rightCol, ry, colW, "Cooldown", ESVConfig.INSTANCE.husbandryCooldownTicks, 1, 40);
+        ry = addIntAdjuster(rightCol, ry, colW, "Batch Size", ESVConfig.INSTANCE.husbandryBatchSize, 1, 20);
+    }
+
     // ── ARTISAN TAB ───────────────────────────────────────────────────
 
     private void buildArtisanTab(int left, int y, int w) {
-        int colW = 135;
+        int colW = (w - 10) / 2;
+        int rightOffset = w - colW;
 
         // ── 1. Tapper Section ──
-        int ty = y + 15;
+        int ty = y + 10;
         this.addRenderableWidget(Button.builder(
             Component.literal("Tapper: " + (ModuleManager.tapperEnabled ? "§aON" : "§cOFF")),
             btn -> {
@@ -186,13 +228,13 @@ public class ESVConfigScreen extends Screen {
                 btn.setMessage(Component.literal("Tapper: " + (ModuleManager.tapperEnabled ? "§aON" : "§cOFF")));
             }
         ).bounds(left, ty, colW, 20).build());
-        addKeybindRow(left + 145, ty, colW, "Key", "tapper", ESVConfig.INSTANCE.quickEnableTapper);
+        addKeybindRow(left + rightOffset, ty, colW, "Key", "tapper", ESVConfig.INSTANCE.quickEnableTapper);
         ty += 25;
         addIntAdjuster(left, ty, colW, "Radius", ESVConfig.INSTANCE.tapperScanRadius, 1, 10);
-        addIntAdjuster(left + 145, ty, colW, "Cooldown", ESVConfig.INSTANCE.tapperCooldownTicks, 1, 40);
+        addIntAdjuster(left + rightOffset, ty, colW, "Cooldown", ESVConfig.INSTANCE.tapperCooldownTicks, 1, 40);
 
         // ── 2. Preserves Section ──
-        int py = y + 80;
+        int py = y + 70;
         this.addRenderableWidget(Button.builder(
             Component.literal("Preserves: " + (ModuleManager.preservesEnabled ? "§aON" : "§cOFF")),
             btn -> {
@@ -201,13 +243,13 @@ public class ESVConfigScreen extends Screen {
                 btn.setMessage(Component.literal("Preserves: " + (ModuleManager.preservesEnabled ? "§aON" : "§cOFF")));
             }
         ).bounds(left, py, colW, 20).build());
-        addKeybindRow(left + 145, py, colW, "Key", "preserves", ESVConfig.INSTANCE.quickEnablePreserves);
+        addKeybindRow(left + rightOffset, py, colW, "Key", "preserves", ESVConfig.INSTANCE.quickEnablePreserves);
         py += 25;
         addIntAdjuster(left, py, colW, "Radius", ESVConfig.INSTANCE.preservesScanRadius, 1, 10);
-        addIntAdjuster(left + 145, py, colW, "Cooldown", ESVConfig.INSTANCE.preservesCooldownTicks, 1, 40);
+        addIntAdjuster(left + rightOffset, py, colW, "Cooldown", ESVConfig.INSTANCE.preservesCooldownTicks, 1, 40);
 
         // ── 3. Wine Section ──
-        int wy = y + 145;
+        int wy = y + 130;
         this.addRenderableWidget(Button.builder(
             Component.literal("Wine: " + (ModuleManager.wineEnabled ? "§aON" : "§cOFF")),
             btn -> {
@@ -216,10 +258,10 @@ public class ESVConfigScreen extends Screen {
                 btn.setMessage(Component.literal("Wine: " + (ModuleManager.wineEnabled ? "§aON" : "§cOFF")));
             }
         ).bounds(left, wy, colW, 20).build());
-        addKeybindRow(left + 145, wy, colW, "Key", "wine", ESVConfig.INSTANCE.quickEnableWine);
+        addKeybindRow(left + rightOffset, wy, colW, "Key", "wine", ESVConfig.INSTANCE.quickEnableWine);
         wy += 25;
         addIntAdjuster(left, wy, colW, "Radius", ESVConfig.INSTANCE.wineScanRadius, 1, 10);
-        addIntAdjuster(left + 145, wy, colW, "Cooldown", ESVConfig.INSTANCE.wineCooldownTicks, 1, 40);
+        addIntAdjuster(left + rightOffset, wy, colW, "Cooldown", ESVConfig.INSTANCE.wineCooldownTicks, 1, 40);
     }
 
     // ── HUD TAB ────────────────────────────────────────────────────────
@@ -258,6 +300,17 @@ public class ESVConfigScreen extends Screen {
         return y + 25;
     }
 
+    private int addDoubleAdjuster(int x, int y, int w, String label, ForgeConfigSpec.DoubleValue cfg, double min, double max) {
+        this.addRenderableWidget(Button.builder(Component.literal(label), b -> {}).bounds(x, y, w - 75, 20).build());
+        this.addRenderableWidget(Button.builder(Component.literal("-"), btn -> {
+            double v = cfg.get(); if (v > min) { cfg.set(Math.max(min, v - 0.5)); cfg.save(); }
+        }).bounds(x + w - 70, y, 20, 20).build());
+        this.addRenderableWidget(Button.builder(Component.literal("+"), btn -> {
+            double v = cfg.get(); if (v < max) { cfg.set(Math.min(max, v + 0.5)); cfg.save(); }
+        }).bounds(x + w - 20, y, 20, 20).build());
+        return y + 25;
+    }
+
     private void addKeybindRow(int x, int y, int w, String label, String id, ForgeConfigSpec.IntValue cfg) {
         String keyName = (listeningFor != null && listeningFor.equals(id))
                 ? "> Press <" : "§e" + getKeyName(cfg.get());
@@ -278,6 +331,7 @@ public class ESVConfigScreen extends Screen {
             ForgeConfigSpec.IntValue cfg = switch (listeningFor) {
                 case "fishing" -> ESVConfig.INSTANCE.quickEnableFishing;
                 case "harvest" -> ESVConfig.INSTANCE.quickEnableHarvest;
+                case "husbandry" -> ESVConfig.INSTANCE.quickEnableHusbandry;
                 case "tapper" -> ESVConfig.INSTANCE.quickEnableTapper;
                 case "preserves" -> ESVConfig.INSTANCE.quickEnablePreserves;
                 case "wine" -> ESVConfig.INSTANCE.quickEnableWine;
@@ -297,12 +351,12 @@ public class ESVConfigScreen extends Screen {
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(g);
 
-        int cardW = 280;
+        int cardW = 320;
         int left = (this.width - cardW) / 2;
-        int top = (this.height - 380) / 2;
+        int top = (this.height - 240) / 2;
 
         // Card background
-        g.fill(left - 8, top - 4, left + cardW + 8, top + 380, 0xD0101015);
+        g.fill(left - 8, top - 4, left + cardW + 8, top + 240, 0xD0101015);
         g.fill(left - 8, top - 4, left + cardW + 8, top - 3, 0xFF5CA848);
 
         // Title
@@ -316,9 +370,12 @@ public class ESVConfigScreen extends Screen {
 
     private void renderAdjusterValues(GuiGraphics g, int left, int top, int w) {
         int yBase = top + 25;
+        int colW = (w - 10) / 2;
+        int rightOffset = w - colW;
+
         switch (currentTab) {
             case FISHING -> {
-                int rx = left + 145;
+                int rx = left + rightOffset;
                 drawAdjusterValue(g, rx + 90, yBase + 6, ESVConfig.INSTANCE.catchDelay.get() + "t");
                 drawAdjusterValue(g, rx + 90, yBase + 31, ESVConfig.INSTANCE.retryDelay.get() + "t");
                 drawAdjusterValue(g, rx + 90, yBase + 56, ESVConfig.INSTANCE.patience.get() + "s");
@@ -330,21 +387,27 @@ public class ESVConfigScreen extends Screen {
                 drawAdjusterValue(g, lx + 90, yBase + 131, ESVConfig.INSTANCE.harvestCooldownTicks.get() + "t");
                 drawAdjusterValue(g, lx + 90, yBase + 156, String.valueOf(ESVConfig.INSTANCE.harvestBatchSize.get()));
             }
+            case HUSBANDRY -> {
+                int rx = left + rightOffset;
+                drawAdjusterValue(g, rx + 90, yBase + 6, String.format("%.1fb", ESVConfig.INSTANCE.husbandryScanRadius.get()));
+                drawAdjusterValue(g, rx + 90, yBase + 31, ESVConfig.INSTANCE.husbandryCooldownTicks.get() + "t");
+                drawAdjusterValue(g, rx + 90, yBase + 56, String.valueOf(ESVConfig.INSTANCE.husbandryBatchSize.get()));
+            }
             case ARTISAN -> {
                 // Tapper
-                g.drawCenteredString(this.font, "§7─── Auto Tapper ───", left + w / 2, yBase + 5, 0xFF777777);
-                drawAdjusterValue(g, left + 90, yBase + 49, ESVConfig.INSTANCE.tapperScanRadius.get() + "b");
-                drawAdjusterValue(g, left + 145 + 90, yBase + 49, ESVConfig.INSTANCE.tapperCooldownTicks.get() + "t");
+                g.drawCenteredString(this.font, "§7─── Easy Tapper ───", left + w / 2, yBase + 0, 0xFF777777);
+                drawAdjusterValue(g, left + 90, yBase + 39, ESVConfig.INSTANCE.tapperScanRadius.get() + "b");
+                drawAdjusterValue(g, left + rightOffset + 90, yBase + 39, ESVConfig.INSTANCE.tapperCooldownTicks.get() + "t");
 
                 // Preserves
-                g.drawCenteredString(this.font, "§7─── Auto Preserves ───", left + w / 2, yBase + 70, 0xFF777777);
-                drawAdjusterValue(g, left + 90, yBase + 114, ESVConfig.INSTANCE.preservesScanRadius.get() + "b");
-                drawAdjusterValue(g, left + 145 + 90, yBase + 114, ESVConfig.INSTANCE.preservesCooldownTicks.get() + "t");
+                g.drawCenteredString(this.font, "§7─── Easy Preserves ───", left + w / 2, yBase + 60, 0xFF777777);
+                drawAdjusterValue(g, left + 90, yBase + 99, ESVConfig.INSTANCE.preservesScanRadius.get() + "b");
+                drawAdjusterValue(g, left + rightOffset + 90, yBase + 99, ESVConfig.INSTANCE.preservesCooldownTicks.get() + "t");
 
                 // Wine
-                g.drawCenteredString(this.font, "§7─── Auto Wine ───", left + w / 2, yBase + 135, 0xFF777777);
-                drawAdjusterValue(g, left + 90, yBase + 179, ESVConfig.INSTANCE.wineScanRadius.get() + "b");
-                drawAdjusterValue(g, left + 145 + 90, yBase + 179, ESVConfig.INSTANCE.wineCooldownTicks.get() + "t");
+                g.drawCenteredString(this.font, "§7─── Easy Wine ───", left + w / 2, yBase + 120, 0xFF777777);
+                drawAdjusterValue(g, left + 90, yBase + 159, ESVConfig.INSTANCE.wineScanRadius.get() + "b");
+                drawAdjusterValue(g, left + rightOffset + 90, yBase + 159, ESVConfig.INSTANCE.wineCooldownTicks.get() + "t");
             }
         }
     }
