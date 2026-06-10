@@ -44,7 +44,6 @@ public final class GrowthForcer {
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         if (!ModuleManager.forceGrowEnabled) return;
-        if (!ESVConfig.INSTANCE.forceGrowNearby.get()) return;
         if (event.player.level().isClientSide()) return;
         if (!(event.player instanceof ServerPlayer player)) return;
         if (!(player.level() instanceof ServerLevel level)) return;
