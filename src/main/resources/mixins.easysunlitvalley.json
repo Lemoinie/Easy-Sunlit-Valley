@@ -5,10 +5,9 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "easysunlitvalley.refmap.json",
   "mixins": [
-    "MinigameCrashFixMixin",
-    "FishingMinigameMixin"
   ],
   "client": [
+    "FishingMinigameMixin",
     "FishingAutoMixin"
   ],
   "injectors": {
