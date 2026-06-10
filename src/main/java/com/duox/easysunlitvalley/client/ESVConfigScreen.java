@@ -15,8 +15,8 @@ import net.minecraftforge.common.ForgeConfigSpec;
 import org.lwjgl.glfw.GLFW;
 
 /**
- * Tabbed configuration screen for Easy Sunlit Valley.
- * Tabs: [Fishing] [Harvest] [Tapper] [HUD]
+ * Clean, compact 2-column configuration screen for Easy Sunlit Valley.
+ * Tabs: [Fishing] [Harvest] [Artisan] [HUD]
  */
 public class ESVConfigScreen extends Screen {
 
@@ -31,8 +31,7 @@ public class ESVConfigScreen extends Screen {
     private final AutoPreserves preserves;
     private final AutoWine wine;
 
-    // Keybind listening state
-    private String listeningFor = null; // "fishing", "harvest", "tapper" or null
+    private String listeningFor = null;
 
     public ESVConfigScreen(AutoFishHack fishHack, AutoHarvester harvester, 
                             AutoTapper tapper, AutoPreserves preserves, AutoWine wine) {
@@ -81,145 +80,160 @@ public class ESVConfigScreen extends Screen {
     // ── FISHING TAB ────────────────────────────────────────────────────
 
     private void buildFishingTab(int left, int y, int w) {
-        // Enable toggle
+        int colW = 135;
+        int leftCol = left;
+        int rightCol = left + 145;
+        int ly = y;
+        int ry = y;
+
+        // ── Left Column: Toggles ──
         this.addRenderableWidget(Button.builder(
-            Component.literal("Auto Fishing: " + (ModuleManager.fishingEnabled ? "§aON" : "§cOFF")),
+            Component.literal("Fishing: " + (ModuleManager.fishingEnabled ? "§aON" : "§cOFF")),
             btn -> {
                 ModuleManager.fishingEnabled = !ModuleManager.fishingEnabled;
                 if (!ModuleManager.fishingEnabled) fishHack.reset();
-                btn.setMessage(Component.literal("Auto Fishing: " + (ModuleManager.fishingEnabled ? "§aON" : "§cOFF")));
+                btn.setMessage(Component.literal("Fishing: " + (ModuleManager.fishingEnabled ? "§aON" : "§cOFF")));
             }
-        ).bounds(left, y, w, 20).build());
-        y += 25;
+        ).bounds(leftCol, ly, colW, 20).build());
+        ly += 25;
 
-        // Bite Mode
         this.addRenderableWidget(Button.builder(
-            Component.literal("Bite Mode: §e" + ESVConfig.INSTANCE.biteMode.get()),
+            Component.literal("Bite: §e" + ESVConfig.INSTANCE.biteMode.get()),
             btn -> {
                 var cur = ESVConfig.INSTANCE.biteMode.get();
                 var next = cur == ESVConfig.BiteMode.SOUND ? ESVConfig.BiteMode.NIBBLE : ESVConfig.BiteMode.SOUND;
                 ESVConfig.INSTANCE.biteMode.set(next);
-                btn.setMessage(Component.literal("Bite Mode: §e" + next));
+                btn.setMessage(Component.literal("Bite: §e" + next));
             }
-        ).bounds(left, y, w, 20).build());
-        y += 25;
+        ).bounds(leftCol, ly, colW, 20).build());
+        ly += 25;
 
-        // Auto Minigame
-        this.addRenderableWidget(boolBtn("Auto Minigame", ESVConfig.INSTANCE.autoMinigame, left, y, w)); y += 25;
-        this.addRenderableWidget(boolBtn("Catch Treasure", ESVConfig.INSTANCE.catchTreasure, left, y, w)); y += 25;
-        this.addRenderableWidget(boolBtn("Durability Protection", ESVConfig.INSTANCE.durabilityProtection, left, y, w)); y += 25;
-        this.addRenderableWidget(boolBtn("Anti Detection", ESVConfig.INSTANCE.antiDetection, left, y, w)); y += 25;
-        this.addRenderableWidget(boolBtn("Auto Switch Rod", ESVConfig.INSTANCE.autoSwitchRod, left, y, w)); y += 25;
+        this.addRenderableWidget(boolBtn("Minigame", ESVConfig.INSTANCE.autoMinigame, leftCol, ly, colW)); ly += 25;
+        this.addRenderableWidget(boolBtn("Treasure", ESVConfig.INSTANCE.catchTreasure, leftCol, ly, colW)); ly += 25;
+        this.addRenderableWidget(boolBtn("Dura Prot", ESVConfig.INSTANCE.durabilityProtection, leftCol, ly, colW)); ly += 25;
+        this.addRenderableWidget(boolBtn("Switch Rod", ESVConfig.INSTANCE.autoSwitchRod, leftCol, ly, colW)); ly += 25;
+        this.addRenderableWidget(boolBtn("Anti Detect", ESVConfig.INSTANCE.antiDetection, leftCol, ly, colW));
 
-        // Numeric adjusters
-        y = addIntAdjuster(left, y, w, "Catch Delay", ESVConfig.INSTANCE.catchDelay, 0, 60);
-        y = addIntAdjuster(left, y, w, "Retry Delay", ESVConfig.INSTANCE.retryDelay, 0, 100);
-        y = addIntAdjuster(left, y, w, "Patience (sec)", ESVConfig.INSTANCE.patience, 10, 120);
-        y = addIntAdjuster(left, y, w, "Durability Threshold", ESVConfig.INSTANCE.durabilityThreshold, 1, 100);
-
-        // Quick enable key
-        addKeybindRow(left, y, w, "Quick Enable", "fishing", ESVConfig.INSTANCE.quickEnableFishing);
+        // ── Right Column: Adjusters & Keybind ──
+        ry = addIntAdjuster(rightCol, ry, colW, "Catch Delay", ESVConfig.INSTANCE.catchDelay, 0, 60);
+        ry = addIntAdjuster(rightCol, ry, colW, "Retry Delay", ESVConfig.INSTANCE.retryDelay, 0, 100);
+        ry = addIntAdjuster(rightCol, ry, colW, "Patience", ESVConfig.INSTANCE.patience, 10, 120);
+        ry = addIntAdjuster(rightCol, ry, colW, "Dura Min", ESVConfig.INSTANCE.durabilityThreshold, 1, 100);
+        ry += 25; // spacer
+        addKeybindRow(rightCol, ry, colW, "Keybind", "fishing", ESVConfig.INSTANCE.quickEnableFishing);
     }
 
     // ── HARVEST TAB ────────────────────────────────────────────────────
 
     private void buildHarvestTab(int left, int y, int w) {
+        int colW = 135;
+        int leftCol = left;
+        int rightCol = left + 145;
+        int ly = y;
+        int ry = y;
+
+        // ── Left Column: Core Settings ──
         this.addRenderableWidget(Button.builder(
-            Component.literal("Auto Harvest: " + (ModuleManager.harvestEnabled ? "§aON" : "§cOFF")),
+            Component.literal("Harvest: " + (ModuleManager.harvestEnabled ? "§aON" : "§cOFF")),
             btn -> {
                 ModuleManager.harvestEnabled = !ModuleManager.harvestEnabled;
                 if (!ModuleManager.harvestEnabled) harvester.reset();
-                btn.setMessage(Component.literal("Auto Harvest: " + (ModuleManager.harvestEnabled ? "§aON" : "§cOFF")));
+                btn.setMessage(Component.literal("Harvest: " + (ModuleManager.harvestEnabled ? "§aON" : "§cOFF")));
             }
-        ).bounds(left, y, w, 20).build());
-        y += 25;
+        ).bounds(leftCol, ly, colW, 20).build());
+        ly += 25;
 
         this.addRenderableWidget(Button.builder(
-            Component.literal("Force Growth: " + (ModuleManager.forceGrowEnabled ? "§aON" : "§cOFF")),
+            Component.literal("Growth: " + (ModuleManager.forceGrowEnabled ? "§aON" : "§cOFF")),
             btn -> {
                 ModuleManager.forceGrowEnabled = !ModuleManager.forceGrowEnabled;
                 if (!ModuleManager.forceGrowEnabled) com.duox.easysunlitvalley.EasySunlitValleyMod.growthForcerInstance.reset();
-                btn.setMessage(Component.literal("Force Growth: " + (ModuleManager.forceGrowEnabled ? "§aON" : "§cOFF")));
+                btn.setMessage(Component.literal("Growth: " + (ModuleManager.forceGrowEnabled ? "§aON" : "§cOFF")));
             }
-        ).bounds(left, y, w, 20).build());
-        y += 25;
+        ).bounds(leftCol, ly, colW, 20).build());
+        ly += 25;
 
-        this.addRenderableWidget(boolBtn("Force Grow (Nearby)", ESVConfig.INSTANCE.forceGrowNearby, left, y, w)); y += 25;
-        this.addRenderableWidget(boolBtn("Force Grow (On Click)", ESVConfig.INSTANCE.forceGrowOnClick, left, y, w)); y += 30;
+        this.addRenderableWidget(boolBtn("Grow Nearby", ESVConfig.INSTANCE.forceGrowNearby, leftCol, ly, colW)); ly += 25;
+        this.addRenderableWidget(boolBtn("Grow OnClick", ESVConfig.INSTANCE.forceGrowOnClick, leftCol, ly, colW)); ly += 25;
 
-        // Per-mod toggles
-        this.addRenderableWidget(boolBtn("Farmer's Delight", ESVConfig.INSTANCE.harvestFarmersDelight, left, y, w)); y += 25;
-        this.addRenderableWidget(boolBtn("Farm & Charm", ESVConfig.INSTANCE.harvestFarmAndCharm, left, y, w)); y += 25;
-        this.addRenderableWidget(boolBtn("Pam's HC2 Trees", ESVConfig.INSTANCE.harvestPamTrees, left, y, w)); y += 25;
-        this.addRenderableWidget(boolBtn("Vinery", ESVConfig.INSTANCE.harvestVinery, left, y, w)); y += 30;
+        ly = addIntAdjuster(leftCol, ly, colW, "Radius", ESVConfig.INSTANCE.harvestScanRadius, 1, 10);
+        ly = addIntAdjuster(leftCol, ly, colW, "Cooldown", ESVConfig.INSTANCE.harvestCooldownTicks, 1, 40);
+        ly = addIntAdjuster(leftCol, ly, colW, "Batch Size", ESVConfig.INSTANCE.harvestBatchSize, 1, 20);
+        addKeybindRow(leftCol, ly, colW, "Keybind", "harvest", ESVConfig.INSTANCE.quickEnableHarvest);
 
-        // Speed settings
-        y = addIntAdjuster(left, y, w, "Scan Radius", ESVConfig.INSTANCE.harvestScanRadius, 1, 10);
-        y = addIntAdjuster(left, y, w, "Cooldown", ESVConfig.INSTANCE.harvestCooldownTicks, 1, 40);
-        y = addIntAdjuster(left, y, w, "Batch Size", ESVConfig.INSTANCE.harvestBatchSize, 1, 20);
-
-        addKeybindRow(left, y, w, "Quick Enable", "harvest", ESVConfig.INSTANCE.quickEnableHarvest);
+        // ── Right Column: Supported Mods checklist ──
+        this.addRenderableWidget(boolBtn("Farmer's Del.", ESVConfig.INSTANCE.harvestFarmersDelight, rightCol, ry, colW)); ry += 25;
+        this.addRenderableWidget(boolBtn("Farm & Charm", ESVConfig.INSTANCE.harvestFarmAndCharm, rightCol, ry, colW)); ry += 25;
+        this.addRenderableWidget(boolBtn("Pam's Trees", ESVConfig.INSTANCE.harvestPamTrees, rightCol, ry, colW)); ry += 25;
+        this.addRenderableWidget(boolBtn("Vinery", ESVConfig.INSTANCE.harvestVinery, rightCol, ry, colW)); ry += 25;
+        this.addRenderableWidget(boolBtn("Etcetera", ESVConfig.INSTANCE.harvestEtcetera, rightCol, ry, colW)); ry += 25;
+        this.addRenderableWidget(boolBtn("Vintage Del.", ESVConfig.INSTANCE.harvestVintageDelight, rightCol, ry, colW)); ry += 25;
+        this.addRenderableWidget(boolBtn("Veggies Del.", ESVConfig.INSTANCE.harvestVeggiesDelight, rightCol, ry, colW));
     }
 
     // ── ARTISAN TAB ───────────────────────────────────────────────────
 
     private void buildArtisanTab(int left, int y, int w) {
+        int colW = 135;
+
+        // ── 1. Tapper Section ──
+        int ty = y + 15;
         this.addRenderableWidget(Button.builder(
-            Component.literal("Auto Tapper: " + (ModuleManager.tapperEnabled ? "§aON" : "§cOFF")),
+            Component.literal("Tapper: " + (ModuleManager.tapperEnabled ? "§aON" : "§cOFF")),
             btn -> {
                 ModuleManager.tapperEnabled = !ModuleManager.tapperEnabled;
                 if (!ModuleManager.tapperEnabled) tapper.reset();
-                btn.setMessage(Component.literal("Auto Tapper: " + (ModuleManager.tapperEnabled ? "§aON" : "§cOFF")));
+                btn.setMessage(Component.literal("Tapper: " + (ModuleManager.tapperEnabled ? "§aON" : "§cOFF")));
             }
-        ).bounds(left, y, w / 2 - 5, 20).build());
+        ).bounds(left, ty, colW, 20).build());
+        addKeybindRow(left + 145, ty, colW, "Key", "tapper", ESVConfig.INSTANCE.quickEnableTapper);
+        ty += 25;
+        addIntAdjuster(left, ty, colW, "Radius", ESVConfig.INSTANCE.tapperScanRadius, 1, 10);
+        addIntAdjuster(left + 145, ty, colW, "Cooldown", ESVConfig.INSTANCE.tapperCooldownTicks, 1, 40);
 
+        // ── 2. Preserves Section ──
+        int py = y + 80;
         this.addRenderableWidget(Button.builder(
-            Component.literal("Auto Preserves: " + (ModuleManager.preservesEnabled ? "§aON" : "§cOFF")),
+            Component.literal("Preserves: " + (ModuleManager.preservesEnabled ? "§aON" : "§cOFF")),
             btn -> {
                 ModuleManager.preservesEnabled = !ModuleManager.preservesEnabled;
                 if (!ModuleManager.preservesEnabled) preserves.reset();
-                btn.setMessage(Component.literal("Auto Preserves: " + (ModuleManager.preservesEnabled ? "§aON" : "§cOFF")));
+                btn.setMessage(Component.literal("Preserves: " + (ModuleManager.preservesEnabled ? "§aON" : "§cOFF")));
             }
-        ).bounds(left + w / 2 + 5, y, w / 2 - 5, 20).build());
-        y += 25;
+        ).bounds(left, py, colW, 20).build());
+        addKeybindRow(left + 145, py, colW, "Key", "preserves", ESVConfig.INSTANCE.quickEnablePreserves);
+        py += 25;
+        addIntAdjuster(left, py, colW, "Radius", ESVConfig.INSTANCE.preservesScanRadius, 1, 10);
+        addIntAdjuster(left + 145, py, colW, "Cooldown", ESVConfig.INSTANCE.preservesCooldownTicks, 1, 40);
 
+        // ── 3. Wine Section ──
+        int wy = y + 145;
         this.addRenderableWidget(Button.builder(
-            Component.literal("Auto Wine: " + (ModuleManager.wineEnabled ? "§aON" : "§cOFF")),
+            Component.literal("Wine: " + (ModuleManager.wineEnabled ? "§aON" : "§cOFF")),
             btn -> {
                 ModuleManager.wineEnabled = !ModuleManager.wineEnabled;
                 if (!ModuleManager.wineEnabled) wine.reset();
-                btn.setMessage(Component.literal("Auto Wine: " + (ModuleManager.wineEnabled ? "§aON" : "§cOFF")));
+                btn.setMessage(Component.literal("Wine: " + (ModuleManager.wineEnabled ? "§aON" : "§cOFF")));
             }
-        ).bounds(left, y, w, 20).build());
-        y += 30;
-
-        y = addIntAdjuster(left, y, w, "Tapper Scan Radius", ESVConfig.INSTANCE.tapperScanRadius, 1, 10);
-        y = addIntAdjuster(left, y, w, "Tapper Cooldown", ESVConfig.INSTANCE.tapperCooldownTicks, 1, 40);
-        addKeybindRow(left, y, w, "Tapper Keybind", "tapper", ESVConfig.INSTANCE.quickEnableTapper);
-        y += 30;
-
-        y = addIntAdjuster(left, y, w, "Preserves Scan Radius", ESVConfig.INSTANCE.preservesScanRadius, 1, 10);
-        y = addIntAdjuster(left, y, w, "Preserves Cooldown", ESVConfig.INSTANCE.preservesCooldownTicks, 1, 40);
-        addKeybindRow(left, y, w, "Preserves Keybind", "preserves", ESVConfig.INSTANCE.quickEnablePreserves);
-        y += 30;
-
-        y = addIntAdjuster(left, y, w, "Wine Scan Radius", ESVConfig.INSTANCE.wineScanRadius, 1, 10);
-        y = addIntAdjuster(left, y, w, "Wine Cooldown", ESVConfig.INSTANCE.wineCooldownTicks, 1, 40);
-        addKeybindRow(left, y, w, "Wine Keybind", "wine", ESVConfig.INSTANCE.quickEnableWine);
+        ).bounds(left, wy, colW, 20).build());
+        addKeybindRow(left + 145, wy, colW, "Key", "wine", ESVConfig.INSTANCE.quickEnableWine);
+        wy += 25;
+        addIntAdjuster(left, wy, colW, "Radius", ESVConfig.INSTANCE.wineScanRadius, 1, 10);
+        addIntAdjuster(left + 145, wy, colW, "Cooldown", ESVConfig.INSTANCE.wineCooldownTicks, 1, 40);
     }
 
     // ── HUD TAB ────────────────────────────────────────────────────────
 
     private void buildHudTab(int left, int y, int w) {
-        this.addRenderableWidget(boolBtn("HUD Enabled", ESVConfig.INSTANCE.hudEnabled, left, y, w)); y += 25;
+        this.addRenderableWidget(boolBtn("HUD Status Overlay", ESVConfig.INSTANCE.hudEnabled, left, y, w)); y += 25;
 
         this.addRenderableWidget(Button.builder(
-            Component.literal("Position: §e" + ESVConfig.INSTANCE.hudPosition.get()),
+            Component.literal("HUD Position: §e" + ESVConfig.INSTANCE.hudPosition.get()),
             btn -> {
                 var vals = ESVConfig.HudPosition.values();
                 int idx = (ESVConfig.INSTANCE.hudPosition.get().ordinal() + 1) % vals.length;
                 ESVConfig.INSTANCE.hudPosition.set(vals[idx]);
-                btn.setMessage(Component.literal("Position: §e" + vals[idx]));
+                btn.setMessage(Component.literal("HUD Position: §e" + vals[idx]));
             }
         ).bounds(left, y, w, 20).build());
     }
@@ -233,29 +247,29 @@ public class ESVConfigScreen extends Screen {
         ).bounds(x, y, w, 20).build();
     }
 
-    private int addIntAdjuster(int left, int y, int w, String label, ForgeConfigSpec.IntValue cfg, int min, int max) {
-        this.addRenderableWidget(Button.builder(Component.literal(label), b -> {}).bounds(left, y, w - 100, 20).build());
+    private int addIntAdjuster(int x, int y, int w, String label, ForgeConfigSpec.IntValue cfg, int min, int max) {
+        this.addRenderableWidget(Button.builder(Component.literal(label), b -> {}).bounds(x, y, w - 75, 20).build());
         this.addRenderableWidget(Button.builder(Component.literal("-"), btn -> {
             int v = cfg.get(); if (v > min) { cfg.set(v - 1); cfg.save(); }
-        }).bounds(left + w - 90, y, 20, 20).build());
+        }).bounds(x + w - 70, y, 20, 20).build());
         this.addRenderableWidget(Button.builder(Component.literal("+"), btn -> {
             int v = cfg.get(); if (v < max) { cfg.set(v + 1); cfg.save(); }
-        }).bounds(left + w - 20, y, 20, 20).build());
+        }).bounds(x + w - 20, y, 20, 20).build());
         return y + 25;
     }
 
-    private void addKeybindRow(int left, int y, int w, String label, String id, ForgeConfigSpec.IntValue cfg) {
+    private void addKeybindRow(int x, int y, int w, String label, String id, ForgeConfigSpec.IntValue cfg) {
         String keyName = (listeningFor != null && listeningFor.equals(id))
-                ? "> Press Key <" : "§e" + getKeyName(cfg.get());
+                ? "> Press <" : "§e" + getKeyName(cfg.get());
         var btn = Button.builder(Component.literal(label + ": " + keyName), b -> {
             listeningFor = id;
             rebuildWidgets();
-        }).bounds(left, y, w - 50, 20).build();
+        }).bounds(x, y, w - 25, 20).build();
         this.addRenderableWidget(btn);
 
         this.addRenderableWidget(Button.builder(Component.literal("X"), b -> {
             listeningFor = null; cfg.set(0); cfg.save(); rebuildWidgets();
-        }).bounds(left + w - 45, y, 45, 20).build());
+        }).bounds(x + w - 22, y, 22, 20).build());
     }
 
     @Override
@@ -301,38 +315,36 @@ public class ESVConfigScreen extends Screen {
     }
 
     private void renderAdjusterValues(GuiGraphics g, int left, int top, int w) {
-        // Draw the current value between the +/- buttons for each adjuster visible in the current tab
-        // We iterate through the rendered widgets to find adjuster rows
-        // Simpler approach: just render based on known positions for each tab
-
         int yBase = top + 25;
         switch (currentTab) {
             case FISHING -> {
-                int y = yBase + 25 * 7; // After 7 rows of toggles
-                drawAdjusterValue(g, left + w - 55, y + 6, ESVConfig.INSTANCE.catchDelay.get() + "t");
-                drawAdjusterValue(g, left + w - 55, y + 31, ESVConfig.INSTANCE.retryDelay.get() + "t");
-                drawAdjusterValue(g, left + w - 55, y + 56, ESVConfig.INSTANCE.patience.get() + "s");
-                drawAdjusterValue(g, left + w - 55, y + 81, String.valueOf(ESVConfig.INSTANCE.durabilityThreshold.get()));
+                int rx = left + 145;
+                drawAdjusterValue(g, rx + 90, yBase + 6, ESVConfig.INSTANCE.catchDelay.get() + "t");
+                drawAdjusterValue(g, rx + 90, yBase + 31, ESVConfig.INSTANCE.retryDelay.get() + "t");
+                drawAdjusterValue(g, rx + 90, yBase + 56, ESVConfig.INSTANCE.patience.get() + "s");
+                drawAdjusterValue(g, rx + 90, yBase + 81, String.valueOf(ESVConfig.INSTANCE.durabilityThreshold.get()));
             }
             case HARVEST -> {
-                int y = yBase + 25 * 5 + 30 * 2; // After toggles + per-mod (Force Growth toggle added)
-                drawAdjusterValue(g, left + w - 55, y + 6, ESVConfig.INSTANCE.harvestScanRadius.get() + "b");
-                drawAdjusterValue(g, left + w - 55, y + 31, ESVConfig.INSTANCE.harvestCooldownTicks.get() + "t");
-                drawAdjusterValue(g, left + w - 55, y + 56, String.valueOf(ESVConfig.INSTANCE.harvestBatchSize.get()));
+                int lx = left;
+                drawAdjusterValue(g, lx + 90, yBase + 106, ESVConfig.INSTANCE.harvestScanRadius.get() + "b");
+                drawAdjusterValue(g, lx + 90, yBase + 131, ESVConfig.INSTANCE.harvestCooldownTicks.get() + "t");
+                drawAdjusterValue(g, lx + 90, yBase + 156, String.valueOf(ESVConfig.INSTANCE.harvestBatchSize.get()));
             }
             case ARTISAN -> {
-                int y = yBase + 25 + 30; // After the toggle rows (Tapper/Preserves + Wine)
-                // Tapper adjusters
-                drawAdjusterValue(g, left + w - 55, y + 6, ESVConfig.INSTANCE.tapperScanRadius.get() + "b");
-                drawAdjusterValue(g, left + w - 55, y + 31, ESVConfig.INSTANCE.tapperCooldownTicks.get() + "t");
-                y += 25 + 25 + 30; // Scan, Cooldown, Keybind
-                // Preserves adjusters
-                drawAdjusterValue(g, left + w - 55, y + 6, ESVConfig.INSTANCE.preservesScanRadius.get() + "b");
-                drawAdjusterValue(g, left + w - 55, y + 31, ESVConfig.INSTANCE.preservesCooldownTicks.get() + "t");
-                y += 25 + 25 + 30;
-                // Wine adjusters
-                drawAdjusterValue(g, left + w - 55, y + 6, ESVConfig.INSTANCE.wineScanRadius.get() + "b");
-                drawAdjusterValue(g, left + w - 55, y + 31, ESVConfig.INSTANCE.wineCooldownTicks.get() + "t");
+                // Tapper
+                g.drawCenteredString(this.font, "§7─── Auto Tapper ───", left + w / 2, yBase + 5, 0xFF777777);
+                drawAdjusterValue(g, left + 90, yBase + 49, ESVConfig.INSTANCE.tapperScanRadius.get() + "b");
+                drawAdjusterValue(g, left + 145 + 90, yBase + 49, ESVConfig.INSTANCE.tapperCooldownTicks.get() + "t");
+
+                // Preserves
+                g.drawCenteredString(this.font, "§7─── Auto Preserves ───", left + w / 2, yBase + 70, 0xFF777777);
+                drawAdjusterValue(g, left + 90, yBase + 114, ESVConfig.INSTANCE.preservesScanRadius.get() + "b");
+                drawAdjusterValue(g, left + 145 + 90, yBase + 114, ESVConfig.INSTANCE.preservesCooldownTicks.get() + "t");
+
+                // Wine
+                g.drawCenteredString(this.font, "§7─── Auto Wine ───", left + w / 2, yBase + 135, 0xFF777777);
+                drawAdjusterValue(g, left + 90, yBase + 179, ESVConfig.INSTANCE.wineScanRadius.get() + "b");
+                drawAdjusterValue(g, left + 145 + 90, yBase + 179, ESVConfig.INSTANCE.wineCooldownTicks.get() + "t");
             }
         }
     }
