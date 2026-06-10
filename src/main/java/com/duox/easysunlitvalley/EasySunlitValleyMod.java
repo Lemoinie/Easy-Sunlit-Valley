@@ -37,7 +37,9 @@ public class EasySunlitValleyMod {
         );
 
         // ── Register server-safe event handlers ────────────────────────
-        MinecraftForge.EVENT_BUS.register(new ForceGrowOnClickHandler());
+        growthForcerInstance = new GrowthForcer();
+        MinecraftForge.EVENT_BUS.register(growthForcerInstance);  // PlayerTickEvent (server-side force-grow)
+        MinecraftForge.EVENT_BUS.register(new ForceGrowOnClickHandler()); // right-click force-grow
 
         // ── Client Setup ───────────────────────────────────────────────
         if (net.minecraftforge.fml.loading.FMLEnvironment.dist == net.minecraftforge.api.distmarker.Dist.CLIENT) {

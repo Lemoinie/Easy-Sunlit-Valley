@@ -25,13 +25,12 @@ public final class ClientInit {
         // ── Create module instances ────────────────────────────────────
         EasyFishing fishHack = new EasyFishing();
         EasyHarvester harvester = new EasyHarvester();
-        GrowthForcer growthForcer = new GrowthForcer();
+        // GrowthForcer is created & registered server-side in EasySunlitValleyMod
+        GrowthForcer growthForcer = EasySunlitValleyMod.growthForcerInstance;
         EasyTapper tapper = new EasyTapper();
         EasyPreserves preserves = new EasyPreserves();
         EasyWine wine = new EasyWine();
         EasyHusbandry husbandry = new EasyHusbandry();
-
-        EasySunlitValleyMod.growthForcerInstance = growthForcer;
 
         // ── Register event handlers ────────────────────────────────────
         ESVKeyBindHandler keyHandler = new ESVKeyBindHandler(fishHack, harvester, growthForcer, tapper, preserves, wine, husbandry);

@@ -137,6 +137,6 @@ public final class ESVKeyBindHandler {
         if (ModuleManager.preservesEnabled) preserves.tick();
         if (ModuleManager.wineEnabled) wine.tick();
         if (ModuleManager.husbandryEnabled) husbandry.tick();
-        if (ModuleManager.forceGrowEnabled) growthForcer.tick();
+        // GrowthForcer is server-side — it self-ticks via PlayerTickEvent in GrowthForcer.java
     }
 }
