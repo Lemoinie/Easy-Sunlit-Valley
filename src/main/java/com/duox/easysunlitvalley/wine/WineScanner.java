@@ -64,7 +64,7 @@ public final class WineScanner {
 
         for (Property<?> prop : state.getProperties()) {
             String name = prop.getName().toLowerCase();
-            if (name.contains("full") || name.contains("filled") || name.contains("ready") || name.contains("output") || name.contains("done")) {
+            if (name.contains("full") || name.contains("filled") || name.contains("ready") || name.contains("output") || name.contains("done") || name.contains("mature")) {
                 if (prop.getValueClass() == Boolean.class) {
                     @SuppressWarnings("unchecked")
                     Property<Boolean> boolProp = (Property<Boolean>) prop;
