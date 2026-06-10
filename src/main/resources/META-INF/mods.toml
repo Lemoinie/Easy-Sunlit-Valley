@@ -1,0 +1,32 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+issueTrackerURL=""
+
+[[mods]]
+modId="easysunlitvalley"
+version="1.0.0"
+displayName="Easy Sunlit Valley"
+authors="Duox"
+description="All-in-one automation for Society: Sunlit Valley — Auto Fishing, Crop Harvesting, and Tapper Collection."
+
+[[dependencies.easysunlitvalley]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.easysunlitvalley]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.easysunlitvalley]]
+modId="stardew_fishing"
+mandatory=true
+versionRange="[1.0,)"
+ordering="AFTER"
+side="CLIENT"
