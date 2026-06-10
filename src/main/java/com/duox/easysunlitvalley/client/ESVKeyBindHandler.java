@@ -30,7 +30,7 @@ public final class ESVKeyBindHandler {
             "key.esv.config", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_H, "key.categories.esv");
 
     public static final KeyMapping FORCE_GROW_KEY = new KeyMapping(
-            "key.esv.forcegrow", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_G, "key.categories.esv");
+            "key.esv.forcegrow", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN, "key.categories.esv");
 
     private final AutoFishHack fishHack;
     private final AutoHarvester harvester;

@@ -37,7 +37,7 @@ An elegant, dynamic HUD overlay showing active modules, rod durability, session 
 ## ⌨️ Controls
 
 * **`H` (Default):** Open the Mod Configuration Screen.
-* **`G` (Default):** Toggle Force Growth.
+* **Toggle Force Growth:** Unbound by default (can be bound to any key in Minecraft's Controls settings).
 * **Quick-Enable Keys:** You can configure keybinds directly inside the config screen (**H**) to toggle individual modules (*Fishing, Harvesting, Tapping, Preserves, Wine*) instantly in-game.
 
 ---

@@ -77,6 +77,6 @@ public class EasySunlitValleyMod {
         MinecraftForge.EVENT_BUS.register(new ESVHUD(fishHack, harvester, tapper, preserves, wine));
         MinecraftForge.EVENT_BUS.register(new ForceGrowOnClickHandler());
 
-        LOGGER.info("Easy Sunlit Valley ready — H=settings, G=force-growth.");
+        LOGGER.info("Easy Sunlit Valley ready — H=settings.");
     }
 }
