@@ -40,12 +40,12 @@ public final class BlockScanner {
         for (BlockPos pos : BlockPos.betweenClosed(center.offset(-r, -r, -r), center.offset(r, r, r))) {
             BlockState state = level.getBlockState(pos);
             if (state.isAir()) continue;
-            evaluate(state, pos).ifPresent(targets::add);
+            evaluate(level, state, pos).ifPresent(targets::add);
         }
         return targets;
     }
 
-    private static Optional<HarvestTarget> evaluate(BlockState state, BlockPos pos) {
+    private static Optional<HarvestTarget> evaluate(ClientLevel level, BlockState state, BlockPos pos) {
         ResourceLocation id = ForgeRegistries.BLOCKS.getKey(state.getBlock());
         if (id == null) return Optional.empty();
 
@@ -63,6 +63,16 @@ public final class BlockScanner {
         if (NS_VINERY.equals(ns) && ESVConfig.INSTANCE.harvestVinery.get())
             return evaluateAgeCrop(state, pos, CropType.FRUIT);
         if ("minecraft".equals(ns)) {
+            if ("sugar_cane".equals(path)) {
+                if (ESVConfig.INSTANCE.harvestSugarCane.get()) {
+                    BlockState below = level.getBlockState(pos.below());
+                    ResourceLocation belowId = ForgeRegistries.BLOCKS.getKey(below.getBlock());
+                    if (belowId != null && "minecraft".equals(belowId.getNamespace()) && "sugar_cane".equals(belowId.getPath())) {
+                        return Optional.of(new HarvestTarget(pos.immutable(), CropType.SUGAR_CANE, true));
+                    }
+                }
+                return Optional.empty();
+            }
             if (path.contains("sapling") || path.contains("stem") || "fire".equals(path) || path.contains("pitcher")) return Optional.empty();
             return evaluateAgeCrop(state, pos, CropType.CROP);
         }

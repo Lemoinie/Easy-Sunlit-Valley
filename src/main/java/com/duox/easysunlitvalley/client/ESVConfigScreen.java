@@ -172,7 +172,8 @@ public class ESVConfigScreen extends Screen {
         this.addRenderableWidget(boolBtn("Vinery", ESVConfig.INSTANCE.harvestVinery, rightCol, ry, colW)); ry += 25;
         this.addRenderableWidget(boolBtn("Etcetera", ESVConfig.INSTANCE.harvestEtcetera, rightCol, ry, colW)); ry += 25;
         this.addRenderableWidget(boolBtn("Vintage Del.", ESVConfig.INSTANCE.harvestVintageDelight, rightCol, ry, colW)); ry += 25;
-        this.addRenderableWidget(boolBtn("Veggies Del.", ESVConfig.INSTANCE.harvestVeggiesDelight, rightCol, ry, colW));
+        this.addRenderableWidget(boolBtn("Veggies Del.", ESVConfig.INSTANCE.harvestVeggiesDelight, rightCol, ry, colW)); ry += 25;
+        this.addRenderableWidget(boolBtn("Sugar Cane", ESVConfig.INSTANCE.harvestSugarCane, rightCol, ry, colW));
     }
 
     // ── HUSBANDRY TAB ──────────────────────────────────────────────────

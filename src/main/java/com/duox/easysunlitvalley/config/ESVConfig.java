@@ -59,6 +59,7 @@ public final class ESVConfig {
     public final ForgeConfigSpec.BooleanValue harvestEtcetera;
     public final ForgeConfigSpec.BooleanValue harvestVintageDelight;
     public final ForgeConfigSpec.BooleanValue harvestVeggiesDelight;
+    public final ForgeConfigSpec.BooleanValue harvestSugarCane;
     public final ForgeConfigSpec.IntValue quickEnableHarvest;
 
     // ══════════════════════════════════════════════════════════════════
@@ -175,6 +176,7 @@ public final class ESVConfig {
         harvestEtcetera = builder.define("etcetera", true);
         harvestVintageDelight = builder.define("vintagedelight", true);
         harvestVeggiesDelight = builder.define("veggiesdelight", true);
+        harvestSugarCane = builder.define("sugarCane", true);
 
         quickEnableHarvest = builder.comment("GLFW key code for quick-toggle harvest (0 = disabled).")
                 .defineInRange("quickEnableKey", 0, 0, 512);

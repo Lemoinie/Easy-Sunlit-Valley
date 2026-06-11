@@ -43,7 +43,11 @@ public final class EasyHarvester {
         while (harvested < batchSize && !matureTargets.isEmpty()) {
             HarvestTarget target = matureTargets.remove(0);
             if (mc.level.getBlockState(target.pos()).isAir()) continue;
-            rightClickBlock(mc, target.pos());
+            if (target.type() == CropType.SUGAR_CANE) {
+                breakBlock(mc, target.pos());
+            } else {
+                rightClickBlock(mc, target.pos());
+            }
             harvested++;
         }
         if (harvested > 0) { cooldown = ESVConfig.INSTANCE.harvestCooldownTicks.get(); scanCooldown = 0; }
@@ -53,6 +57,11 @@ public final class EasyHarvester {
         mc.player.swing(InteractionHand.MAIN_HAND);
         mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND,
                 new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false));
+    }
+
+    private void breakBlock(Minecraft mc, BlockPos pos) {
+        mc.player.swing(InteractionHand.MAIN_HAND);
+        mc.gameMode.destroyBlock(pos);
     }
 
     public void reset() { cooldown = 0; scanCooldown = 0; matureTargets = new ArrayList<>(); }
