@@ -24,8 +24,5 @@ public final class ModuleManager {
     /** Easy-husbandry right-clicks nearby farm animals. */
     public static boolean husbandryEnabled = false;
 
-    /** Force-grow nearby crops (area effect, server-side). Written by client thread, read by server thread. */
-    public static volatile boolean forceGrowEnabled = false;
-
     private ModuleManager() {}
 }

@@ -4,7 +4,6 @@ import com.duox.easysunlitvalley.client.ESVHUD;
 import com.duox.easysunlitvalley.client.ESVKeyBindHandler;
 import com.duox.easysunlitvalley.fishing.EasyFishing;
 import com.duox.easysunlitvalley.harvest.EasyHarvester;
-import com.duox.easysunlitvalley.harvest.GrowthForcer;
 import com.duox.easysunlitvalley.husbandry.EasyHusbandry;
 import com.duox.easysunlitvalley.tapper.EasyTapper;
 import com.duox.easysunlitvalley.preserve.EasyPreserves;
@@ -25,15 +24,13 @@ public final class ClientInit {
         // ── Create module instances ────────────────────────────────────
         EasyFishing fishHack = new EasyFishing();
         EasyHarvester harvester = new EasyHarvester();
-        // GrowthForcer is created & registered server-side in EasySunlitValleyMod
-        GrowthForcer growthForcer = EasySunlitValleyMod.growthForcerInstance;
         EasyTapper tapper = new EasyTapper();
         EasyPreserves preserves = new EasyPreserves();
         EasyWine wine = new EasyWine();
         EasyHusbandry husbandry = new EasyHusbandry();
 
         // ── Register event handlers ────────────────────────────────────
-        ESVKeyBindHandler keyHandler = new ESVKeyBindHandler(fishHack, harvester, growthForcer, tapper, preserves, wine, husbandry);
+        ESVKeyBindHandler keyHandler = new ESVKeyBindHandler(fishHack, harvester, tapper, preserves, wine, husbandry);
         MinecraftForge.EVENT_BUS.register(keyHandler);
         MinecraftForge.EVENT_BUS.register(fishHack); // tick + sound events
         MinecraftForge.EVENT_BUS.register(new ESVHUD(fishHack, harvester, tapper, preserves, wine, husbandry));

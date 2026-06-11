@@ -156,19 +156,6 @@ public class ESVConfigScreen extends Screen {
         ).bounds(leftCol, ly, colW, 20).build());
         ly += 25;
 
-        this.addRenderableWidget(Button.builder(
-            Component.literal("Growth: " + (ModuleManager.forceGrowEnabled ? "§aON" : "§cOFF")),
-            btn -> {
-                ModuleManager.forceGrowEnabled = !ModuleManager.forceGrowEnabled;
-                if (!ModuleManager.forceGrowEnabled) com.duox.easysunlitvalley.EasySunlitValleyMod.growthForcerInstance.reset();
-                btn.setMessage(Component.literal("Growth: " + (ModuleManager.forceGrowEnabled ? "§aON" : "§cOFF")));
-            }
-        ).bounds(leftCol, ly, colW, 20).build());
-        ly += 25;
-
-        this.addRenderableWidget(boolBtn("Grow Nearby", ESVConfig.INSTANCE.forceGrowNearby, leftCol, ly, colW)); ly += 25;
-        this.addRenderableWidget(boolBtn("Grow OnClick", ESVConfig.INSTANCE.forceGrowOnClick, leftCol, ly, colW)); ly += 25;
-
         ly = addIntAdjuster(leftCol, ly, colW, "Radius", ESVConfig.INSTANCE.harvestScanRadius, 1, 10);
         ly = addIntAdjuster(leftCol, ly, colW, "Cooldown", ESVConfig.INSTANCE.harvestCooldownTicks, 1, 40);
         ly = addIntAdjuster(leftCol, ly, colW, "Batch Size", ESVConfig.INSTANCE.harvestBatchSize, 1, 20);
@@ -383,9 +370,9 @@ public class ESVConfigScreen extends Screen {
             }
             case HARVEST -> {
                 int lx = left;
-                drawAdjusterValue(g, lx + 90, yBase + 106, ESVConfig.INSTANCE.harvestScanRadius.get() + "b");
-                drawAdjusterValue(g, lx + 90, yBase + 131, ESVConfig.INSTANCE.harvestCooldownTicks.get() + "t");
-                drawAdjusterValue(g, lx + 90, yBase + 156, String.valueOf(ESVConfig.INSTANCE.harvestBatchSize.get()));
+                drawAdjusterValue(g, lx + 90, yBase + 31, ESVConfig.INSTANCE.harvestScanRadius.get() + "b");
+                drawAdjusterValue(g, lx + 90, yBase + 56, ESVConfig.INSTANCE.harvestCooldownTicks.get() + "t");
+                drawAdjusterValue(g, lx + 90, yBase + 81, String.valueOf(ESVConfig.INSTANCE.harvestBatchSize.get()));
             }
             case HUSBANDRY -> {
                 int rx = left + rightOffset;

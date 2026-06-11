@@ -4,7 +4,6 @@ import com.duox.easysunlitvalley.ModuleManager;
 import com.duox.easysunlitvalley.config.ESVConfig;
 import com.duox.easysunlitvalley.fishing.EasyFishing;
 import com.duox.easysunlitvalley.harvest.EasyHarvester;
-import com.duox.easysunlitvalley.harvest.GrowthForcer;
 import com.duox.easysunlitvalley.husbandry.EasyHusbandry;
 import com.duox.easysunlitvalley.tapper.EasyTapper;
 import com.duox.easysunlitvalley.preserve.EasyPreserves;
@@ -21,7 +20,7 @@ import org.lwjgl.glfw.GLFW;
 
 /**
  * Keybinds and tick driver for all modules.
- * H = open config, G = toggle force-growth.
+ * H = open config.
  * Quick-enable keys configurable per module.
  */
 public final class ESVKeyBindHandler {
@@ -29,23 +28,17 @@ public final class ESVKeyBindHandler {
     public static final KeyMapping CONFIG_KEY = new KeyMapping(
             "key.esv.config", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_H, "key.categories.esv");
 
-    public static final KeyMapping FORCE_GROW_KEY = new KeyMapping(
-            "key.esv.forcegrow", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN, "key.categories.esv");
-
     private final EasyFishing fishHack;
     private final EasyHarvester harvester;
-    private final GrowthForcer growthForcer;
     private final EasyTapper tapper;
     private final EasyPreserves preserves;
     private final EasyWine wine;
     private final EasyHusbandry husbandry;
 
-    public ESVKeyBindHandler(EasyFishing fishHack, EasyHarvester harvester,
-                             GrowthForcer growthForcer, EasyTapper tapper,
+    public ESVKeyBindHandler(EasyFishing fishHack, EasyHarvester harvester, EasyTapper tapper,
                              EasyPreserves preserves, EasyWine wine, EasyHusbandry husbandry) {
         this.fishHack = fishHack;
         this.harvester = harvester;
-        this.growthForcer = growthForcer;
         this.tapper = tapper;
         this.preserves = preserves;
         this.wine = wine;
@@ -54,7 +47,6 @@ public final class ESVKeyBindHandler {
 
     public static void registerBindings(RegisterKeyMappingsEvent event) {
         event.register(CONFIG_KEY);
-        event.register(FORCE_GROW_KEY);
     }
 
     @SubscribeEvent
@@ -66,17 +58,10 @@ public final class ESVKeyBindHandler {
             mc.setScreen(new ESVConfigScreen(fishHack, harvester, tapper, preserves, wine, husbandry));
         }
 
-        if (FORCE_GROW_KEY.consumeClick() && mc.screen == null) {
-            ModuleManager.forceGrowEnabled = !ModuleManager.forceGrowEnabled;
-            if (!ModuleManager.forceGrowEnabled) growthForcer.reset();
-            mc.player.displayClientMessage(Component.literal("Force Growth: "
-                    + (ModuleManager.forceGrowEnabled ? "§aON" : "§cOFF")), true);
-        }
-
         // Quick-enable keys
         if (event.getAction() == GLFW.GLFW_PRESS && mc.screen == null) {
             int key = event.getKey();
-            if (key == CONFIG_KEY.getKey().getValue() || key == FORCE_GROW_KEY.getKey().getValue()) return;
+            if (key == CONFIG_KEY.getKey().getValue()) return;
 
             int fishKey = ESVConfig.INSTANCE.quickEnableFishing.get();
             if (fishKey > 0 && key == fishKey) {
@@ -137,6 +122,5 @@ public final class ESVKeyBindHandler {
         if (ModuleManager.preservesEnabled) preserves.tick();
         if (ModuleManager.wineEnabled) wine.tick();
         if (ModuleManager.husbandryEnabled) husbandry.tick();
-        // GrowthForcer is server-side — it self-ticks via PlayerTickEvent in GrowthForcer.java
     }
 }

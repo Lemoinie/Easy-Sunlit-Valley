@@ -52,8 +52,6 @@ public final class ESVConfig {
     public final ForgeConfigSpec.IntValue harvestCooldownTicks;
     public final ForgeConfigSpec.IntValue harvestScanIntervalTicks;
     public final ForgeConfigSpec.IntValue harvestBatchSize;
-    public final ForgeConfigSpec.BooleanValue forceGrowNearby;
-    public final ForgeConfigSpec.BooleanValue forceGrowOnClick;
     public final ForgeConfigSpec.BooleanValue harvestFarmersDelight;
     public final ForgeConfigSpec.BooleanValue harvestFarmAndCharm;
     public final ForgeConfigSpec.BooleanValue harvestPamTrees;
@@ -161,9 +159,6 @@ public final class ESVConfig {
         harvestCooldownTicks = builder.comment("Ticks between harvest cycles.").defineInRange("cooldownTicks", 1, 1, 40);
         harvestScanIntervalTicks = builder.comment("Ticks between full rescans.").defineInRange("scanIntervalTicks", 5, 1, 40);
         harvestBatchSize = builder.comment("Blocks to harvest per cycle.").defineInRange("batchSize", 4, 1, 20);
-
-        forceGrowNearby = builder.comment("Force-grow ALL nearby crops (area effect).").define("forceGrowNearby", false);
-        forceGrowOnClick = builder.comment("Force-grow a crop when you right-click it.").define("forceGrowOnClick", false);
 
         harvestFarmersDelight = builder.define("farmersDelight", true);
         harvestFarmAndCharm = builder.define("farmAndCharm", true);

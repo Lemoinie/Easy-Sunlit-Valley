@@ -67,9 +67,8 @@ public class ESVHUD {
         boolean preservesActive = ModuleManager.preservesEnabled;
         boolean wineActive = ModuleManager.wineEnabled;
         boolean husbandryActive = ModuleManager.husbandryEnabled;
-        boolean forceGrow = ModuleManager.forceGrowEnabled;
 
-        if (!fishActive && !harvestActive && !tapperActive && !forceGrow && !preservesActive && !wineActive && !husbandryActive) return;
+        if (!fishActive && !harvestActive && !tapperActive && !preservesActive && !wineActive && !husbandryActive) return;
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null || mc.screen != null) return;
@@ -84,7 +83,7 @@ public class ESVHUD {
         int lineH = 12;
         int lines = 1; // Title
         if (fishActive) lines += 4; // Status, Rod, Session, Total
-        if (harvestActive || forceGrow) lines += 2; // Harvest status + mature count
+        if (harvestActive) lines += 2; // Harvest status + mature count
         if (husbandryActive) lines += 2; // Husbandry status + nearby count
         if (tapperActive || preservesActive || wineActive) {
             lines += 1; // Section header (Artisan)
@@ -141,9 +140,8 @@ public class ESVHUD {
         }
 
         // ── HARVEST SECTION ────────────────────────────────────────────
-        if (harvestActive || forceGrow) {
-            String hStatus = harvestActive ? "§aActive" : "§7Off";
-            if (forceGrow) hStatus += " §e+ForceGrow";
+        if (harvestActive) {
+            String hStatus = "§aActive";
             g.drawString(mc.font, "§2Harvest: " + hStatus, tx, ty, 0xFFCCCCCC, true);
             ty += lineH;
 

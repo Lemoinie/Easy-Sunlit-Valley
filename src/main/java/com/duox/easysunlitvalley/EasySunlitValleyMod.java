@@ -1,8 +1,6 @@
 package com.duox.easysunlitvalley;
 
 import com.duox.easysunlitvalley.config.ESVConfig;
-import com.duox.easysunlitvalley.harvest.ForceGrowOnClickHandler;
-import com.duox.easysunlitvalley.harvest.GrowthForcer;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -20,9 +18,6 @@ public class EasySunlitValleyMod {
     public static final String MOD_ID = "easysunlitvalley";
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    // Global reference for cross-module access (server-safe)
-    public static GrowthForcer growthForcerInstance;
-
     public EasySunlitValleyMod() {
         LOGGER.info("Easy Sunlit Valley initializing...");
 
@@ -35,11 +30,6 @@ public class EasySunlitValleyMod {
                 net.minecraftforge.fml.IExtensionPoint.DisplayTest.class,
                 () -> net.minecraftforge.fml.IExtensionPoint.DisplayTest.IGNORE_SERVER_VERSION.get()
         );
-
-        // ── Register server-safe event handlers ────────────────────────
-        growthForcerInstance = new GrowthForcer();
-        MinecraftForge.EVENT_BUS.register(growthForcerInstance);  // PlayerTickEvent (server-side force-grow)
-        MinecraftForge.EVENT_BUS.register(new ForceGrowOnClickHandler()); // right-click force-grow
 
         // ── Client Setup ───────────────────────────────────────────────
         if (net.minecraftforge.fml.loading.FMLEnvironment.dist == net.minecraftforge.api.distmarker.Dist.CLIENT) {
