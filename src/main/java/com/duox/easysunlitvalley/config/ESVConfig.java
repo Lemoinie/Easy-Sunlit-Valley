@@ -86,6 +86,14 @@ public final class ESVConfig {
     public final ForgeConfigSpec.IntValue quickEnableWine;
 
     // ══════════════════════════════════════════════════════════════════
+    //  CHEESE
+    // ══════════════════════════════════════════════════════════════════
+    public final ForgeConfigSpec.IntValue cheeseScanRadius;
+    public final ForgeConfigSpec.IntValue cheeseCooldownTicks;
+    public final ForgeConfigSpec.IntValue cheeseScanIntervalTicks;
+    public final ForgeConfigSpec.IntValue quickEnableCheese;
+
+    // ══════════════════════════════════════════════════════════════════
     //  HUSBANDRY
     // ══════════════════════════════════════════════════════════════════
     public final ForgeConfigSpec.DoubleValue husbandryScanRadius;
@@ -205,6 +213,18 @@ public final class ESVConfig {
         wineScanIntervalTicks = builder.comment("Ticks between wine rescans.").defineInRange("scanIntervalTicks", 10, 1, 40);
 
         quickEnableWine = builder.comment("GLFW key code for quick-toggle wine (0 = disabled).")
+                .defineInRange("quickEnableKey", 0, 0, 512);
+
+        builder.pop();
+
+        // ── CHEESE ─────────────────────────────────────────────────────
+        builder.comment("Easy Cheese settings (society:cheese_press).").push("cheese");
+
+        cheeseScanRadius = builder.comment("Block scan radius for cheese presses.").defineInRange("scanRadius", 5, 1, 10);
+        cheeseCooldownTicks = builder.comment("Ticks between cheese harvest/insert cycles.").defineInRange("cooldownTicks", 2, 1, 40);
+        cheeseScanIntervalTicks = builder.comment("Ticks between cheese rescans.").defineInRange("scanIntervalTicks", 10, 1, 40);
+
+        quickEnableCheese = builder.comment("GLFW key code for quick-toggle cheese (0 = disabled).")
                 .defineInRange("quickEnableKey", 0, 0, 512);
 
         builder.pop();

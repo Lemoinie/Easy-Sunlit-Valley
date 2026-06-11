@@ -8,6 +8,7 @@ import com.duox.easysunlitvalley.husbandry.EasyHusbandry;
 import com.duox.easysunlitvalley.tapper.EasyTapper;
 import com.duox.easysunlitvalley.preserve.EasyPreserves;
 import com.duox.easysunlitvalley.wine.EasyWine;
+import com.duox.easysunlitvalley.cheese.EasyCheese;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
@@ -28,11 +29,12 @@ public final class ClientInit {
         EasyPreserves preserves = new EasyPreserves();
         EasyWine wine = new EasyWine();
         EasyHusbandry husbandry = new EasyHusbandry();
+        EasyCheese cheese = new EasyCheese();
 
         // ── Register event handlers ────────────────────────────────────
-        ESVKeyBindHandler keyHandler = new ESVKeyBindHandler(fishHack, harvester, tapper, preserves, wine, husbandry);
+        ESVKeyBindHandler keyHandler = new ESVKeyBindHandler(fishHack, harvester, tapper, preserves, wine, husbandry, cheese);
         MinecraftForge.EVENT_BUS.register(keyHandler);
         MinecraftForge.EVENT_BUS.register(fishHack); // tick + sound events
-        MinecraftForge.EVENT_BUS.register(new ESVHUD(fishHack, harvester, tapper, preserves, wine, husbandry));
+        MinecraftForge.EVENT_BUS.register(new ESVHUD(fishHack, harvester, tapper, preserves, wine, husbandry, cheese));
     }
 }

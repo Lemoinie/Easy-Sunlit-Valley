@@ -8,6 +8,7 @@ import com.duox.easysunlitvalley.husbandry.EasyHusbandry;
 import com.duox.easysunlitvalley.tapper.EasyTapper;
 import com.duox.easysunlitvalley.preserve.EasyPreserves;
 import com.duox.easysunlitvalley.wine.EasyWine;
+import com.duox.easysunlitvalley.cheese.EasyCheese;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -34,15 +35,17 @@ public final class ESVKeyBindHandler {
     private final EasyPreserves preserves;
     private final EasyWine wine;
     private final EasyHusbandry husbandry;
+    private final EasyCheese cheese;
 
     public ESVKeyBindHandler(EasyFishing fishHack, EasyHarvester harvester, EasyTapper tapper,
-                             EasyPreserves preserves, EasyWine wine, EasyHusbandry husbandry) {
+                             EasyPreserves preserves, EasyWine wine, EasyHusbandry husbandry, EasyCheese cheese) {
         this.fishHack = fishHack;
         this.harvester = harvester;
         this.tapper = tapper;
         this.preserves = preserves;
         this.wine = wine;
         this.husbandry = husbandry;
+        this.cheese = cheese;
     }
 
     public static void registerBindings(RegisterKeyMappingsEvent event) {
@@ -55,7 +58,7 @@ public final class ESVKeyBindHandler {
         if (mc.player == null || mc.level == null) return;
 
         if (CONFIG_KEY.consumeClick() && mc.screen == null) {
-            mc.setScreen(new ESVConfigScreen(fishHack, harvester, tapper, preserves, wine, husbandry));
+            mc.setScreen(new ESVConfigScreen(fishHack, harvester, tapper, preserves, wine, husbandry, cheese));
         }
 
         // Quick-enable keys
@@ -110,6 +113,14 @@ public final class ESVKeyBindHandler {
                 mc.player.displayClientMessage(Component.literal("Easy Husbandry: "
                         + (ModuleManager.husbandryEnabled ? "§aON" : "§cOFF")), true);
             }
+
+            int cheeseKey = ESVConfig.INSTANCE.quickEnableCheese.get();
+            if (cheeseKey > 0 && key == cheeseKey) {
+                ModuleManager.cheeseEnabled = !ModuleManager.cheeseEnabled;
+                if (!ModuleManager.cheeseEnabled) cheese.reset();
+                mc.player.displayClientMessage(Component.literal("Easy Cheese: "
+                        + (ModuleManager.cheeseEnabled ? "§aON" : "§cOFF")), true);
+            }
         }
     }
 
@@ -122,5 +133,6 @@ public final class ESVKeyBindHandler {
         if (ModuleManager.preservesEnabled) preserves.tick();
         if (ModuleManager.wineEnabled) wine.tick();
         if (ModuleManager.husbandryEnabled) husbandry.tick();
+        if (ModuleManager.cheeseEnabled) cheese.tick();
     }
 }

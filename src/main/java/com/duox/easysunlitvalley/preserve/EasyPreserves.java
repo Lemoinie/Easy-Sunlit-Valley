@@ -15,7 +15,7 @@ import java.util.List;
 
 /**
  * Easy Preserves module logic. 
- * Automatically harvests done preserves, or inputs held edible items into empty preserves.
+ * Automatically harvests done preserves, or inputs held edible items into empty preserves in batches.
  */
 public final class EasyPreserves {
 
@@ -49,39 +49,59 @@ public final class EasyPreserves {
 
         if (targets.isEmpty()) return;
 
+        int batchSize = 8;
+        int processed = 0;
+
         // 1. Harvest ready preserves jars
+        List<PreservesTarget> toRemove = new ArrayList<>();
         for (int i = 0; i < targets.size(); i++) {
+            if (processed >= batchSize) break;
             PreservesTarget target = targets.get(i);
             if (target.isDone()) {
-                if (mc.level.getBlockState(target.pos()).isAir()) continue;
+                if (mc.level.getBlockState(target.pos()).isAir()) {
+                    toRemove.add(target);
+                    continue;
+                }
 
                 mc.player.swing(InteractionHand.MAIN_HAND);
                 mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND,
                         new BlockHitResult(Vec3.atCenterOf(target.pos()), Direction.UP, target.pos(), false));
 
-                cooldown = ESVConfig.INSTANCE.preservesCooldownTicks.get();
-                scanCooldown = 0;
-                return;
+                toRemove.add(target);
+                processed++;
+            }
+        }
+        targets.removeAll(toRemove);
+
+        // 2. Put edible items held by player into empty preserves jars
+        if (processed < batchSize) {
+            ItemStack held = mc.player.getItemInHand(InteractionHand.MAIN_HAND);
+            if (!held.isEmpty() && held.getItem().isEdible()) {
+                toRemove.clear();
+                for (int i = 0; i < targets.size(); i++) {
+                    if (processed >= batchSize) break;
+                    PreservesTarget target = targets.get(i);
+                    if (target.isEmpty()) {
+                        if (mc.level.getBlockState(target.pos()).isAir()) {
+                            toRemove.add(target);
+                            continue;
+                        }
+
+                        mc.player.swing(InteractionHand.MAIN_HAND);
+                        mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND,
+                                new BlockHitResult(Vec3.atCenterOf(target.pos()), Direction.UP, target.pos(), false));
+
+                        toRemove.add(target);
+                        processed++;
+                    }
+                }
+                targets.removeAll(toRemove);
             }
         }
 
-        // 2. Put edible items held by player into empty preserves jars
-        ItemStack held = mc.player.getItemInHand(InteractionHand.MAIN_HAND);
-        if (!held.isEmpty() && held.getItem().isEdible()) {
-            for (int i = 0; i < targets.size(); i++) {
-                PreservesTarget target = targets.get(i);
-                if (target.isEmpty()) {
-                    if (mc.level.getBlockState(target.pos()).isAir()) continue;
-
-                    mc.player.swing(InteractionHand.MAIN_HAND);
-                    mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND,
-                            new BlockHitResult(Vec3.atCenterOf(target.pos()), Direction.UP, target.pos(), false));
-
-                    cooldown = ESVConfig.INSTANCE.preservesCooldownTicks.get();
-                    scanCooldown = 0;
-                    return;
-                }
-            }
+        if (processed > 0) {
+            cooldown = ESVConfig.INSTANCE.preservesCooldownTicks.get();
+            scanCooldown = 0;
         }
     }
 

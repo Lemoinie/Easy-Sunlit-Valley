@@ -8,6 +8,7 @@ import com.duox.easysunlitvalley.husbandry.EasyHusbandry;
 import com.duox.easysunlitvalley.tapper.EasyTapper;
 import com.duox.easysunlitvalley.preserve.EasyPreserves;
 import com.duox.easysunlitvalley.wine.EasyWine;
+import com.duox.easysunlitvalley.cheese.EasyCheese;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
@@ -39,15 +40,17 @@ public class ESVHUD {
     private final EasyPreserves preserves;
     private final EasyWine wine;
     private final EasyHusbandry husbandry;
+    private final EasyCheese cheese;
 
     public ESVHUD(EasyFishing fishHack, EasyHarvester harvester, EasyTapper tapper,
-                  EasyPreserves preserves, EasyWine wine, EasyHusbandry husbandry) {
+                  EasyPreserves preserves, EasyWine wine, EasyHusbandry husbandry, EasyCheese cheese) {
         this.fishHack = fishHack;
         this.harvester = harvester;
         this.tapper = tapper;
         this.preserves = preserves;
         this.wine = wine;
         this.husbandry = husbandry;
+        this.cheese = cheese;
     }
 
     @SubscribeEvent
@@ -67,8 +70,9 @@ public class ESVHUD {
         boolean preservesActive = ModuleManager.preservesEnabled;
         boolean wineActive = ModuleManager.wineEnabled;
         boolean husbandryActive = ModuleManager.husbandryEnabled;
+        boolean cheeseActive = ModuleManager.cheeseEnabled;
 
-        if (!fishActive && !harvestActive && !tapperActive && !preservesActive && !wineActive && !husbandryActive) return;
+        if (!fishActive && !harvestActive && !tapperActive && !preservesActive && !wineActive && !husbandryActive && !cheeseActive) return;
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null || mc.screen != null) return;
@@ -85,11 +89,12 @@ public class ESVHUD {
         if (fishActive) lines += 4; // Status, Rod, Session, Total
         if (harvestActive) lines += 2; // Harvest status + mature count
         if (husbandryActive) lines += 2; // Husbandry status + nearby count
-        if (tapperActive || preservesActive || wineActive) {
+        if (tapperActive || preservesActive || wineActive || cheeseActive) {
             lines += 1; // Section header (Artisan)
             if (tapperActive) lines += 1;
             if (preservesActive) lines += 1;
             if (wineActive) lines += 1;
+            if (cheeseActive) lines += 1;
         }
 
         int width = 175;
@@ -159,7 +164,7 @@ public class ESVHUD {
         }
 
         // ── ARTISAN SECTION ─────────────────────────────────────────────
-        if (tapperActive || preservesActive || wineActive) {
+        if (tapperActive || preservesActive || wineActive || cheeseActive) {
             g.drawString(mc.font, "§dArtisan:", tx, ty, 0xFFCCCCCC, true);
             ty += lineH;
 
@@ -173,6 +178,10 @@ public class ESVHUD {
             }
             if (wineActive) {
                 g.drawString(mc.font, "  Kegs ready: §e" + wine.getDoneCount(), tx, ty, 0xFFCCCCCC, true);
+                ty += lineH;
+            }
+            if (cheeseActive) {
+                g.drawString(mc.font, "  Cheese ready: §e" + cheese.getDoneCount(), tx, ty, 0xFFCCCCCC, true);
                 ty += lineH;
             }
         }

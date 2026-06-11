@@ -8,6 +8,7 @@ import com.duox.easysunlitvalley.husbandry.EasyHusbandry;
 import com.duox.easysunlitvalley.tapper.EasyTapper;
 import com.duox.easysunlitvalley.preserve.EasyPreserves;
 import com.duox.easysunlitvalley.wine.EasyWine;
+import com.duox.easysunlitvalley.cheese.EasyCheese;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -32,11 +33,13 @@ public class ESVConfigScreen extends Screen {
     private final EasyPreserves preserves;
     private final EasyWine wine;
     private final EasyHusbandry husbandry;
+    private final EasyCheese cheese;
 
     private String listeningFor = null;
 
     public ESVConfigScreen(EasyFishing fishHack, EasyHarvester harvester, 
-                            EasyTapper tapper, EasyPreserves preserves, EasyWine wine, EasyHusbandry husbandry) {
+                            EasyTapper tapper, EasyPreserves preserves, EasyWine wine, 
+                            EasyHusbandry husbandry, EasyCheese cheese) {
         super(TITLE);
         this.fishHack = fishHack;
         this.harvester = harvester;
@@ -44,6 +47,7 @@ public class ESVConfigScreen extends Screen {
         this.preserves = preserves;
         this.wine = wine;
         this.husbandry = husbandry;
+        this.cheese = cheese;
     }
 
     @Override
@@ -57,7 +61,7 @@ public class ESVConfigScreen extends Screen {
         this.clearWidgets();
         int cardW = 320;
         int left = (this.width - cardW) / 2;
-        int top = (this.height - 240) / 2; // Shorter card height since layout is compact
+        int top = (this.height - 260) / 2;
 
         // ── Tab buttons ────────────────────────────────────────────────
         int tabW = cardW / Tab.values().length;
@@ -249,6 +253,21 @@ public class ESVConfigScreen extends Screen {
         wy += 25;
         addIntAdjuster(left, wy, colW, "Radius", ESVConfig.INSTANCE.wineScanRadius, 1, 10);
         addIntAdjuster(left + rightOffset, wy, colW, "Cooldown", ESVConfig.INSTANCE.wineCooldownTicks, 1, 40);
+
+        // ── 4. Cheese Section ──
+        int cy = y + 190;
+        this.addRenderableWidget(Button.builder(
+            Component.literal("Cheese: " + (ModuleManager.cheeseEnabled ? "§aON" : "§cOFF")),
+            btn -> {
+                ModuleManager.cheeseEnabled = !ModuleManager.cheeseEnabled;
+                if (!ModuleManager.cheeseEnabled) cheese.reset();
+                btn.setMessage(Component.literal("Cheese: " + (ModuleManager.cheeseEnabled ? "§aON" : "§cOFF")));
+            }
+        ).bounds(left, cy, colW, 20).build());
+        addKeybindRow(left + rightOffset, cy, colW, "Key", "cheese", ESVConfig.INSTANCE.quickEnableCheese);
+        cy += 25;
+        addIntAdjuster(left, cy, colW, "Radius", ESVConfig.INSTANCE.cheeseScanRadius, 1, 10);
+        addIntAdjuster(left + rightOffset, cy, colW, "Cooldown", ESVConfig.INSTANCE.cheeseCooldownTicks, 1, 40);
     }
 
     // ── HUD TAB ────────────────────────────────────────────────────────
@@ -322,6 +341,7 @@ public class ESVConfigScreen extends Screen {
                 case "tapper" -> ESVConfig.INSTANCE.quickEnableTapper;
                 case "preserves" -> ESVConfig.INSTANCE.quickEnablePreserves;
                 case "wine" -> ESVConfig.INSTANCE.quickEnableWine;
+                case "cheese" -> ESVConfig.INSTANCE.quickEnableCheese;
                 default -> null;
             };
             if (cfg != null) { cfg.set(keyCode); cfg.save(); }
@@ -340,10 +360,10 @@ public class ESVConfigScreen extends Screen {
 
         int cardW = 320;
         int left = (this.width - cardW) / 2;
-        int top = (this.height - 240) / 2;
+        int top = (this.height - 260) / 2;
 
-        // Card background
-        g.fill(left - 8, top - 4, left + cardW + 8, top + 240, 0xD0101015);
+        // Card background (increased height to 260)
+        g.fill(left - 8, top - 4, left + cardW + 8, top + 260, 0xD0101015);
         g.fill(left - 8, top - 4, left + cardW + 8, top - 3, 0xFF5CA848);
 
         // Title
@@ -395,6 +415,11 @@ public class ESVConfigScreen extends Screen {
                 g.drawCenteredString(this.font, "§7─── Easy Wine ───", left + w / 2, yBase + 120, 0xFF777777);
                 drawAdjusterValue(g, left + 90, yBase + 159, ESVConfig.INSTANCE.wineScanRadius.get() + "b");
                 drawAdjusterValue(g, left + rightOffset + 90, yBase + 159, ESVConfig.INSTANCE.wineCooldownTicks.get() + "t");
+
+                // Cheese
+                g.drawCenteredString(this.font, "§7─── Easy Cheese ───", left + w / 2, yBase + 180, 0xFF777777);
+                drawAdjusterValue(g, left + 90, yBase + 219, ESVConfig.INSTANCE.cheeseScanRadius.get() + "b");
+                drawAdjusterValue(g, left + rightOffset + 90, yBase + 219, ESVConfig.INSTANCE.cheeseCooldownTicks.get() + "t");
             }
         }
     }

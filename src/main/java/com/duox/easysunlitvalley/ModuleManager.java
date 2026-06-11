@@ -24,5 +24,8 @@ public final class ModuleManager {
     /** Easy-husbandry right-clicks nearby farm animals. */
     public static boolean husbandryEnabled = false;
 
+    /** Easy-cheese items in cheese presses. */
+    public static boolean cheeseEnabled = false;
+
     private ModuleManager() {}
 }

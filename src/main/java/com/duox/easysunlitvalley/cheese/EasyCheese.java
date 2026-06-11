@@ -1,4 +1,4 @@
-package com.duox.easysunlitvalley.wine;
+package com.duox.easysunlitvalley.cheese;
 
 import com.duox.easysunlitvalley.config.ESVConfig;
 import net.minecraft.client.Minecraft;
@@ -8,23 +8,25 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 /**
- * Easy Wine module logic. 
- * Automatically harvests done wine, or inputs held edible items into empty wine kegs in batches.
+ * Easy Cheese module logic.
+ * Automatically harvests done cheese, or inputs held milk items into empty cheese presses in batches.
  */
-public final class EasyWine {
+public final class EasyCheese {
 
     private int cooldown = 0;
     private int scanCooldown = 0;
-    private List<WineTarget> targets = new ArrayList<>();
+    private List<CheeseTarget> targets = new ArrayList<>();
 
     public int getDoneCount() {
-        return (int) targets.stream().filter(WineTarget::isDone).count();
+        return (int) targets.stream().filter(CheeseTarget::isDone).count();
     }
 
     public void tick() {
@@ -34,10 +36,10 @@ public final class EasyWine {
 
         if (scanCooldown <= 0) {
             BlockPos playerPos = mc.player.blockPosition();
-            targets = new ArrayList<>(WineScanner.scan().stream()
+            targets = new ArrayList<>(CheeseScanner.scan().stream()
                     .sorted(Comparator.comparingDouble(t -> t.pos().distSqr(playerPos)))
                     .toList());
-            scanCooldown = ESVConfig.INSTANCE.wineScanIntervalTicks.get();
+            scanCooldown = ESVConfig.INSTANCE.cheeseScanIntervalTicks.get();
         } else {
             scanCooldown--;
         }
@@ -52,11 +54,11 @@ public final class EasyWine {
         int batchSize = 8;
         int processed = 0;
 
-        // 1. Harvest ready wine kegs
-        List<WineTarget> toRemove = new ArrayList<>();
+        // 1. Harvest ready cheese presses
+        List<CheeseTarget> toRemove = new ArrayList<>();
         for (int i = 0; i < targets.size(); i++) {
             if (processed >= batchSize) break;
-            WineTarget target = targets.get(i);
+            CheeseTarget target = targets.get(i);
             if (target.isDone()) {
                 if (mc.level.getBlockState(target.pos()).isAir()) {
                     toRemove.add(target);
@@ -73,34 +75,37 @@ public final class EasyWine {
         }
         targets.removeAll(toRemove);
 
-        // 2. Put edible items held by player into empty wine kegs
+        // 2. Put milk items held by player into empty cheese presses
         if (processed < batchSize) {
             ItemStack held = mc.player.getItemInHand(InteractionHand.MAIN_HAND);
-            if (!held.isEmpty() && held.getItem().isEdible()) {
-                toRemove.clear();
-                for (int i = 0; i < targets.size(); i++) {
-                    if (processed >= batchSize) break;
-                    WineTarget target = targets.get(i);
-                    if (target.isEmpty()) {
-                        if (mc.level.getBlockState(target.pos()).isAir()) {
+            if (!held.isEmpty()) {
+                ResourceLocation itemId = ForgeRegistries.ITEMS.getKey(held.getItem());
+                if (itemId != null && itemId.getPath().toLowerCase().contains("milk")) {
+                    toRemove.clear();
+                    for (int i = 0; i < targets.size(); i++) {
+                        if (processed >= batchSize) break;
+                        CheeseTarget target = targets.get(i);
+                        if (target.isEmpty()) {
+                            if (mc.level.getBlockState(target.pos()).isAir()) {
+                                toRemove.add(target);
+                                continue;
+                            }
+
+                            mc.player.swing(InteractionHand.MAIN_HAND);
+                            mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND,
+                                    new BlockHitResult(Vec3.atCenterOf(target.pos()), Direction.UP, target.pos(), false));
+
                             toRemove.add(target);
-                            continue;
+                            processed++;
                         }
-
-                        mc.player.swing(InteractionHand.MAIN_HAND);
-                        mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND,
-                                new BlockHitResult(Vec3.atCenterOf(target.pos()), Direction.UP, target.pos(), false));
-
-                        toRemove.add(target);
-                        processed++;
                     }
+                    targets.removeAll(toRemove);
                 }
-                targets.removeAll(toRemove);
             }
         }
 
         if (processed > 0) {
-            cooldown = ESVConfig.INSTANCE.wineCooldownTicks.get();
+            cooldown = ESVConfig.INSTANCE.cheeseCooldownTicks.get();
             scanCooldown = 0;
         }
     }

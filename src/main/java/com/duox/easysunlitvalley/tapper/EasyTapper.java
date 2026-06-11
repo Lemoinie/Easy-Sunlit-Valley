@@ -38,15 +38,31 @@ public final class EasyTapper {
         if (cooldown > 0) { cooldown--; return; }
         if (fullTappers.isEmpty()) return;
 
-        TapperTarget target = fullTappers.remove(0);
-        if (mc.level.getBlockState(target.pos()).isAir()) return;
+        int batchSize = 8;
+        int processed = 0;
 
-        mc.player.swing(InteractionHand.MAIN_HAND);
-        mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND,
-                new BlockHitResult(Vec3.atCenterOf(target.pos()), Direction.UP, target.pos(), false));
+        List<TapperTarget> toRemove = new ArrayList<>();
+        for (int i = 0; i < fullTappers.size(); i++) {
+            if (processed >= batchSize) break;
+            TapperTarget target = fullTappers.get(i);
+            if (mc.level.getBlockState(target.pos()).isAir()) {
+                toRemove.add(target);
+                continue;
+            }
 
-        cooldown = ESVConfig.INSTANCE.tapperCooldownTicks.get();
-        scanCooldown = 0;
+            mc.player.swing(InteractionHand.MAIN_HAND);
+            mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND,
+                    new BlockHitResult(Vec3.atCenterOf(target.pos()), Direction.UP, target.pos(), false));
+
+            toRemove.add(target);
+            processed++;
+        }
+        fullTappers.removeAll(toRemove);
+
+        if (processed > 0) {
+            cooldown = ESVConfig.INSTANCE.tapperCooldownTicks.get();
+            scanCooldown = 0;
+        }
     }
 
     public void reset() { cooldown = 0; scanCooldown = 0; fullTappers = new ArrayList<>(); }
