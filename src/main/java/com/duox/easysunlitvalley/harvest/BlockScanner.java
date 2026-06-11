@@ -68,7 +68,13 @@ public final class BlockScanner {
                     BlockState below = level.getBlockState(pos.below());
                     ResourceLocation belowId = ForgeRegistries.BLOCKS.getKey(below.getBlock());
                     if (belowId != null && "minecraft".equals(belowId.getNamespace()) && "sugar_cane".equals(belowId.getPath())) {
-                        return Optional.of(new HarvestTarget(pos.immutable(), CropType.SUGAR_CANE, true));
+                        // Check that the block 2 blocks below is NOT sugarcane, ensuring we only break height 2
+                        BlockState below2 = level.getBlockState(pos.below().below());
+                        ResourceLocation below2Id = ForgeRegistries.BLOCKS.getKey(below2.getBlock());
+                        boolean below2IsSugarCane = below2Id != null && "minecraft".equals(below2Id.getNamespace()) && "sugar_cane".equals(below2Id.getPath());
+                        if (!below2IsSugarCane) {
+                            return Optional.of(new HarvestTarget(pos.immutable(), CropType.SUGAR_CANE, true));
+                        }
                     }
                 }
                 return Optional.empty();
